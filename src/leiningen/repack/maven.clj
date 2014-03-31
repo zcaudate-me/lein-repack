@@ -31,10 +31,26 @@
 (defn pom-by-coordinates [coordinate]
   (file-by-coordinates coordinate ".pom"))
 
-(jar-by-coordinates '[org.clojure/clojure "1.5.1"])
-(pom-by-coordinates '[org.clojure/clojure "1.5.1"])
+(defn jar-contents [jar-path]
+  (with-open [zip (java.util.zip.ZipInputStream.
+                   (io/input-stream jar-path))]
+  (loop [entries []]
+    (if-let [e (.getNextEntry zip)]
+      (recur (conj entries (.getName e)))
+      entries))))
 
+(defn coordinate-contents [coordinate]
+  (if-let [jar-path (jar-by-coordinates coordinate)]
+    (jar-contents jar-path)))
 
+(defn jar-contains-resource? [jar-path path]
+  (->> (jar-contents jar-path)
+       (filter #(= path %))
+       (empty?)))
+
+(defn coordinate-contains-resource? [coordinate path]
+  (if-let [jar-path (jar-by-coordinates coordinate)]
+    (jar-contains-resource? jar-path path)))
 
 (defn class-name->jar-resource-path [clsn]
   (str (.replaceAll clsn "\\." *sep*) ".class"))
@@ -88,6 +104,5 @@
 (defn maven-by-namespace
   ([cls] (maven-by-namespace cls *current-cl*))
   ([cls loader]
-     (-> (jar-by-namespace cls loader)
-         first
-         (maven-by-path loader))))
+     (if-let [jar (first (jar-by-namespace cls loader))]
+       (maven-by-path jar loader))))
