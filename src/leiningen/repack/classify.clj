@@ -3,7 +3,7 @@
             [leiningen.pom :as pom]
             [clojure.java.io :as io]
             [clojure.string :as string]
-            [leiningen.repack.common :refer :all]))
+            [korra.common :refer :all]))
 
 (defn name->path [name]
   (.replaceAll (munge (str name)) "\\." *sep*))
@@ -61,8 +61,8 @@
   (let [[_ ns & body] (read-string (slurp file))]
     {:ns ns
      :file file
-     :dep-namespaces (mapcat grab-namespaces body)
-     :dep-classes (mapcat grab-classes body)}))
+     :dep-namespaces (vec (mapcat grab-namespaces body))
+     :dep-classes (vec (mapcat grab-classes body))}))
 
 (defn split-project-files [root-dir base level excludes]
   (let [all-files (->> (list-clojure-files root-dir)
@@ -84,6 +84,13 @@
                                      (set (mapcat :dep-namespaces items))
                                      namespaces)
                     :dep-classes   (set (mapcat :dep-classes items))
-                    :files (map :file items)
-                    :items items}])))
+                    :files (mapv (fn [x] (-> x :file (.getPath))) items)
+                    :items (mapv (fn [item] (assoc item :file (-> item :file (.getPath)))) items)}])))
        (into {})))
+
+(defn create-package-lookup [modules]
+    (->> modules
+         (map #(let [[k v] %]
+                 (zipmap (:namespaces v)
+                         (repeat k))))
+         (apply merge)))

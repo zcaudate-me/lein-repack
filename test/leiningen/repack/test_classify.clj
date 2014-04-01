@@ -48,7 +48,6 @@
                  2)
   => "common.control")
 
-
 (fact "grab-namespaces"
   (grab-namespaces
    '(:require [clojure.core]))
@@ -86,6 +85,20 @@
   (-> (split-project-files *hara-src-dir* "hara" 1 [])
       (second)
       (classify-modules)
+      (get "common")
+      :files
+      (->> (map (fn [x] (.getPath x))))
+      sort)
+  =>
+  (cons
+   (str *hara-src-dir* "/hara/common.clj")
+   (map #(str *hara-src-dir* "/hara/common/" %)
+        ["collection.clj" "constructor.clj" "control.clj" "debug.clj" "error.clj" "fn.clj"
+         "interop.clj" "keyword.clj" "lettering.clj" "string.clj" "thread.clj" "types.clj"]))
+
+  (-> (split-project-files *hara-src-dir* "hara" 1 [])
+      (second)
+      (classify-modules)
       (get "state")
       (dissoc :items :files))
   => '{:package "state",
@@ -99,4 +112,24 @@
       (get "common")
       (dissoc :items :files))
   => '{:package "common", :namespaces #{hara.common.control hara.common.types hara.common.lettering hara.common.fn hara.common.keyword hara.common.collection hara.common.error hara.common hara.common.constructor hara.common.thread hara.common.debug hara.common.interop hara.common.string},
-       :dep-namespaces #{clojure.string clojure.set hara.import}, :dep-classes #{}})
+       :dep-namespaces #{clojure.string clojure.set hara.import}, :dep-classes #{}}
+
+
+
+
+  (-> (split-project-files *hara-src-dir* "hara" 1 [])
+      (second)
+      (classify-modules)
+      (create-package-lookup))
+  => '{hara.common.control "common", hara.common.types "common", hara.checkers "checkers", hara.common.lettering "common", hara.common.fn "common", hara.common.keyword "common", hara.common.collection "common", hara.state "state", hara.common.error "common", hara.common "common", hara.collection.hash-map "collection", hara.common.constructor "common", hara.common.thread "common", hara.import "import", hara.common.debug "common", hara.common.interop "common", hara.collection.data-map "collection", hara.common.string "common"}
+
+
+
+
+
+
+
+  )
+(:dependencies (leiningen.core.project/unmerge-profiles
+                (leiningen.core.project/read "project.clj") [:default]))
+([im.chit/korra "0.1.0"])
