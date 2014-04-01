@@ -114,9 +114,6 @@
   => '{:package "common", :namespaces #{hara.common.control hara.common.types hara.common.lettering hara.common.fn hara.common.keyword hara.common.collection hara.common.error hara.common hara.common.constructor hara.common.thread hara.common.debug hara.common.interop hara.common.string},
        :dep-namespaces #{clojure.string clojure.set hara.import}, :dep-classes #{}}
 
-
-
-
   (-> (split-project-files *hara-src-dir* "hara" 1 [])
       (second)
       (classify-modules)
@@ -124,12 +121,7 @@
   => '{hara.common.control "common", hara.common.types "common", hara.checkers "checkers", hara.common.lettering "common", hara.common.fn "common", hara.common.keyword "common", hara.common.collection "common", hara.state "state", hara.common.error "common", hara.common "common", hara.collection.hash-map "collection", hara.common.constructor "common", hara.common.thread "common", hara.import "import", hara.common.debug "common", hara.common.interop "common", hara.collection.data-map "collection", hara.common.string "common"}
 
 
-
-
-
-
-
-  )
+)
 (:dependencies (leiningen.core.project/unmerge-profiles
                 (leiningen.core.project/read "project.clj") [:default]))
-([im.chit/korra "0.1.0"])
+'([im.chit/korra "0.1.0"])
