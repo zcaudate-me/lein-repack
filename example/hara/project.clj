@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :codox {:include [hara.common]}
   :repack {:root hara
-           :exclude [import]
+           :exclude []
            :levels 2}
   :profiles {:dev {:dependencies [[midje "1.6.3"]
                                   [clj-time "0.6.0"]]

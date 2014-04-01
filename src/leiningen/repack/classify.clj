@@ -64,14 +64,26 @@
      :dep-namespaces (vec (mapcat grab-namespaces body))
      :dep-classes (vec (mapcat grab-classes body))}))
 
-(defn split-project-files [root-dir base level excludes]
-  (let [all-files (->> (list-clojure-files root-dir)
-                       (group-by #(submodule-file?
-                                   % root-dir base excludes)))
-        parent-files (vec (get all-files false))
-        module-files (->> (get all-files true)
-                             (group-by #(classify-file % root-dir base level)))]
-    [parent-files module-files]))
+(defn split-project-files
+  ([project]
+     (let [opts (:repack project)]
+       (split-project-files
+        (first (:source-paths project))
+        (-> (or (:root opts)
+                (:name project))
+            (str)
+            (.replaceAll "\\." *sep*))
+        (or (:level opts) 1)
+        (or (:exclude opts) []))))
+
+  ([root-dir base level excludes]
+      (let [all-files (->> (list-clojure-files root-dir)
+                           (group-by #(submodule-file?
+                                       % root-dir base excludes)))
+            parent-files (vec (get all-files false))
+            module-files (->> (get all-files true)
+                              (group-by #(classify-file % root-dir base level)))]
+        [parent-files module-files])))
 
 (defn classify-modules [module-files]
   (->> module-files
@@ -87,10 +99,3 @@
                     :files (mapv (fn [x] (-> x :file (.getPath))) items)
                     :items (mapv (fn [item] (assoc item :file (-> item :file (.getPath)))) items)}])))
        (into {})))
-
-(defn create-package-lookup [modules]
-    (->> modules
-         (map #(let [[k v] %]
-                 (zipmap (:namespaces v)
-                         (repeat k))))
-         (apply merge)))

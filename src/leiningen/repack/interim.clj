@@ -32,43 +32,48 @@ Raise an exception if any deletion fails unless silently is true."
     (doseq [branch (-> manifest :branches keys)]
       (.mkdir (io/file (str interim-path *sep* "branches" *sep* branch))))))
 
-
 (defn project-zip [project]
   (-> (z/of-file (str (:root project) *sep* "project.clj"))
       (z/find-value z/next 'defproject)))
 
 (defn replace-project-value [zipper key value]
-  (-> zipper
-      (z/find-value key)
-      (z/right)
-      (z/replace value)
-      (z/up)
-      (z/find-value z/next 'defproject)))
+  (if-let [pos (-> zipper
+                   (z/find-value key))]
+    (-> pos
+        (z/right)
+        (z/replace value)
+        (z/up)
+        (z/find-value z/next 'defproject))
+    zipper))
 
 (defn update-project-value [zipper key f]
-  (let [pos (-> zipper
-                (z/find-value key)
-                (z/right))
-        val (z/sexpr pos)]
-    (-> pos
-        (z/replace (f val))
-        (z/up)
-        (z/find-value z/next 'defproject))))
+  (if-let [pos (-> zipper
+                   (z/find-value key))]
+    (let [pos (z/right pos)
+          val (z/sexpr pos)]
+      (-> pos
+          (z/replace (f val))
+          (z/up)
+          (z/find-value z/next 'defproject)))
+    zipper))
 
 (defn remove-project-key [zipper key]
-  (-> zipper
-      (z/find-value key)
-      (z/remove*)
-      (z/right)
-      (z/remove*)
-      (z/up)
-      (z/find-value z/next 'defproject)))
+  (if-let [pos (-> zipper
+                   (z/find-value key))]
+    (-> pos
+        (z/remove*)
+        (z/right)
+        (z/remove*)
+        (z/up)
+        (z/find-value z/next 'defproject))
+    zipper))
 
 (defn root-project-file [project manifest]
   (-> (project-zip project)
       (replace-project-value :dependencies
                              (-> manifest :root :dependencies))
       (remove-project-key :profiles)
+      (remove-project-key :source-paths)
       (remove-project-key :repack)
       z/print-root
       with-out-str
@@ -82,32 +87,106 @@ Raise an exception if any deletion fails unless silently is true."
       (replace-project-value :dependencies
                              (-> manifest :branches (get name) :dependencies))
       (remove-project-key :profiles)
+      (remove-project-key :source-paths)
       (remove-project-key :repack)
       z/print-root
       with-out-str
       (->> (spit (str (interim-path project) *sep* "branches" *sep* name *sep* "project.clj")))))
 
-(defn branch-project-files [project manifest]
+(defn shortlist-branches [manifest]
+  (->> (:branches manifest)
+       (map (fn [[k m]]
+              (-> m
+                  (select-keys [:coordinate :dependencies])
+                  (assoc :id k))))))
+
+(defn all-branch-deps [manifest]
+  (->> (:branches manifest)
+       (map (fn [[k m]]
+              (:coordinate m)))
+       (set)))
+
+(defn sort-branch-deps-pass
+  [all sl]
+  (reduce (fn [out i]
+            (if (some all (:dependencies i))
+              out
+              (conj out i))) [] sl))
+
+(defn sort-branch-deps [manifest]
+  (let [sl (shortlist-branches manifest)
+        all (all-branch-deps manifest)]
+    (loop [all all
+           sl  sl
+           output []]
+      (if-not (or (empty? sl)
+                  (empty? all))
+        (let [pass (sort-branch-deps-pass all sl)]
+          (recur
+           (apply disj all (map :coordinate pass))
+           (filter (fn [x] (some #(not= x %) pass) ) sl)
+           (conj output pass)))
+        output))))
+
+(defn copy-file [rel-path source sink]
+  (let [source-file (io/as-file (str source *sep* rel-path))
+        sink-file   (io/as-file (str sink *sep* rel-path))]
+    (io/make-parents sink-file)
+    (io/copy source-file sink-file)))
+
+(defn copy-source-files [project manifest]
+  (let [source-path (-> project :source-paths first)
+        interim-path (interim-path project)]
+    (doseq [root-file (-> manifest :root :files)]
+      (copy-file root-file source-path (str interim-path *sep* "root" *sep* "src")))
+    (doseq [branch (-> manifest :branches keys)]
+      (doseq [branch-file (-> manifest :branches (get branch) :files)]
+        (copy-file branch-file source-path (str interim-path *sep* "branches" *sep* branch *sep* "src"))))))
+
+(defn interim-project-files [project manifest]
+  (interim-project-skeleton project manifest)
+  (root-project-file project manifest)
   (doseq [branch (-> manifest :branches keys)]
-    (branch-project-file project manifest branch)))
+    (branch-project-file project manifest branch))
 
-(defn interim-project-files [project manifest])
+  (copy-source-files project manifest))
 
+
+(comment
+  (flatten (sort-branch-deps
+            (manifest/create-manifest
+             (project/read "example/hara/project.clj"))))
+
+  [[{:id "import", :dependencies [[org.clojure/clojure "1.5.1"]], :coordinate [im.chit/hara.import "1.1.0-SNAPSHOT"]}]
+   [{:id "common", :dependencies [[org.clojure/clojure "1.5.1"] [im.chit/hara.import "1.1.0-SNAPSHOT"]],
+     :coordinate [im.chit/hara.common "1.1.0-SNAPSHOT"]}]
+   [{:id "checkers", :dependencies [[org.clojure/clojure "1.5.1"] [im.chit/hara.common "1.1.0-SNAPSHOT"]],
+     :coordinate [im.chit/hara.checkers "1.1.0-SNAPSHOT"]}
+    {:id "collection", :dependencies [[org.clojure/clojure "1.5.1"] [im.chit/hara.common "1.1.0-SNAPSHOT"]],
+     :coordinate [im.chit/hara.collection "1.1.0-SNAPSHOT"]}
+    {:id "state", :dependencies [[org.clojure/clojure "1.5.1"] [im.chit/hara.common "1.1.0-SNAPSHOT"]],
+     :coordinate [im.chit/hara.state "1.1.0-SNAPSHOT"]}]]
+
+  (create-branch-steps
+   (manifest/create-manifest
+    (project/read "example/hara/project.clj")))
+
+  (all-branch-deps
+   (manifest/create-manifest
+    (project/read "example/hara/project.clj"))))
 
 (defn create-interim-projects [project manifest])
 
-(interim-project-skeleton (project/read "example/hara/project.clj")
-                          (manifest/create-manifest
+(interim-project-files (project/read "example/hara/project.clj")
+                       (manifest/create-manifest
+                           (project/read "example/hara/project.clj")))
+#_(copy-source-files
+ (project/read "example/hara/project.clj")
+                       (manifest/create-manifest
                            (project/read "example/hara/project.clj")))
 
-(root-project-file (project/read "example/hara/project.clj")
-                   (manifest/create-manifest
-                    (project/read "example/hara/project.clj")))
 
-(branch-project-files (project/read "example/hara/project.clj")
-                   (manifest/create-manifest
-                    (project/read "example/hara/project.clj"))
-                   )
+
 
 #_(spit "example/hara/target/interim/root/pom.xml"
       (leiningen.pom/make-pom (project/read "example/hara/target/interim/root/project.clj")))
