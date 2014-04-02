@@ -8,5 +8,4 @@
                  [rewrite-clj "0.3.9"]]
   :profiles {:dev {:dependencies [[midje "1.6.3"]]
                    :plugins [[lein-midje "3.1.3"]]}}
-  ;;:jvm-opts ["-Xms128m" "-Xmx1024m" "-XX:PermSize=64m" "-XX:MaxPermSize=256m"]
   )

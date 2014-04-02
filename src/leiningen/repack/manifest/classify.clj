@@ -73,7 +73,7 @@
                 (:name project))
             (str)
             (.replaceAll "\\." *sep*))
-        (or (:level opts) 1)
+        (or (:levels opts) 1)
         (or (:exclude opts) []))))
 
   ([root-dir base level excludes]

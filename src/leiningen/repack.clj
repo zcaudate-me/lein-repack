@@ -13,7 +13,7 @@
   (println "split              Splits the main project into several interim projects")
   (println "clean              Removes the interim folder")
   (println "install            Install all the interim projects to local repo")
-  (println "deply              Deploys all the repackaged jars"))
+  (println "deploy              Deploys all the repackaged jars"))
 
 (defn manifest [project]
   (clojure.pprint/pprint

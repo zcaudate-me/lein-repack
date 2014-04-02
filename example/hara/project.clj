@@ -7,9 +7,9 @@
   :codox {:include [hara.common]}
   :repack {:root hara
            :exclude []
-           :levels 2}
+           :levels 1}
   :profiles {:dev {:dependencies [[midje "1.6.3"]
                                   [clj-time "0.6.0"]
                                   [im.chit/korra "0.1.0"]]
                    :plugins [[lein-midje "3.1.3"]
-                             [lein-repack "0.1.0-SNAPSHOT"]]}})
+                             [lein-repack "0.1.0"]]}})
