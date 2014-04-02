@@ -32,47 +32,6 @@ Raise an exception if any deletion fails unless silently is true."
     (doseq [branch (-> manifest :branches keys)]
       (.mkdir (io/file (str interim-path *sep* "branches" *sep* branch))))))
 
-(defn shortlist-branches [manifest]
-  (->> (:branches manifest)
-       (map (fn [[k m]]
-              (-> m
-                  (select-keys [:coordinate :dependencies])
-                  (assoc :id k))))))
-
-(defn all-branch-deps [manifest]
-  (->> (:branches manifest)
-       (map (fn [[k m]]
-              (:coordinate m)))
-       (set)))
-
-(defn sort-branch-deps-pass
-  [all sl]
-  (reduce (fn [out i]
-            (if (some all (:dependencies i))
-              out
-              (conj out i))) [] sl))
-
-(defn sort-branch-deps [manifest]
-  (let [sl (shortlist-branches manifest)
-        all (all-branch-deps manifest)]
-    (loop [all all
-           sl  sl
-           output []]
-      (if-not (or (empty? sl)
-                  (empty? all))
-        (let [pass (sort-branch-deps-pass all sl)]
-          (recur
-           (apply disj all (map :coordinate pass))
-           (filter (fn [x] (some #(not= x %) pass) ) sl)
-           (conj output pass)))
-        output))))
-
-(defn copy-file [rel-path source sink]
-  (let [source-file (io/as-file (str source *sep* rel-path))
-        sink-file   (io/as-file (str sink *sep* rel-path))]
-    (io/make-parents sink-file)
-    (io/copy source-file sink-file)))
-
 (defn copy-source-files [project manifest]
   (let [source-path (-> project :source-paths first)
         interim-path (interim-path project)]

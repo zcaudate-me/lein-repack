@@ -5,7 +5,6 @@
             [korra.common :refer [*sep*]]
             [korra.resolve :as resolve]))
 
-
 (defn create-manifest [project]
   (let [project (project/unmerge-profiles project [:default])
         root (first (:source-paths project))

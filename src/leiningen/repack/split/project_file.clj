@@ -1,3 +1,7 @@
+(ns leiningen.repack.split.project-file
+  (:require [rewrite-clj.zip :as z]
+            [leiningen.repack.util :refer :all]
+            [korra.common :refer [*sep*]]))
 
 (defn project-zip [project]
   (-> (z/of-file (str (:root project) *sep* "project.clj"))
@@ -35,18 +39,17 @@
         (z/find-value z/next 'defproject))
     zipper))
 
-(defn root-project-file [project manifest]
+(defn root-project-string [project manifest]
   (-> (project-zip project)
-      (replace-project-value :dependencies
-                             (-> manifest :root :dependencies))
+      (update-project-value :dependencies
+                            #(->> manifest :root :dependencies (concat %) (vec)))
       (remove-project-key :profiles)
       (remove-project-key :source-paths)
       (remove-project-key :repack)
       z/print-root
-      with-out-str
-      (->> (spit (str (interim-path project) *sep* "root" *sep* "project.clj")))))
+      with-out-str))
 
-(defn branch-project-file [project manifest name]
+(defn branch-project-string [project manifest name]
   (-> (project-zip project)
       (update-project-value 'defproject (fn [x] (symbol (str x "." name))))
       (update-project-value :description
@@ -57,5 +60,4 @@
       (remove-project-key :source-paths)
       (remove-project-key :repack)
       z/print-root
-      with-out-str
-      (->> (spit (str (interim-path project) *sep* "branches" *sep* name *sep* "project.clj")))))
+      with-out-str))
