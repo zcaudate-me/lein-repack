@@ -1,7 +1,7 @@
 (ns leiningen.repack.manifest
   (:require [leiningen.core.project :as project]
-            [leiningen.repack.classify :as classify]
-            [leiningen.repack.graph :as graph]
+            [leiningen.repack.manifest.classify :as classify]
+            [leiningen.repack.manifest.graph :as graph]
             [korra.common :refer [*sep*]]
             [korra.resolve :as resolve]))
 

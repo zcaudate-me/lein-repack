@@ -1,4 +1,4 @@
-(ns leiningen.repack.classify
+(ns leiningen.repack.manifest.classify
   (:require [leiningen.core.project :as project]
             [leiningen.pom :as pom]
             [clojure.java.io :as io]

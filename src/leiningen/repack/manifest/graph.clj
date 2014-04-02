@@ -1,6 +1,5 @@
-(ns leiningen.repack.graph
-  (:require [leiningen.repack.classify :as classify]
-            [korra.common :refer [*sep*]]
+(ns leiningen.repack.manifest.graph
+  (:require [korra.common :refer [*sep*]]
             [korra.resolve :as resolve]))
 
 (defn resolve-with-ns [x dependencies]

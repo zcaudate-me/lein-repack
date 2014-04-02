@@ -1,8 +1,7 @@
 (ns leiningen.repack
   (:require [leiningen.core.project :as project]
             [leiningen.repack.manifest :as manifest]
-            [leiningen.repack.pom :as pom]
-            [leiningen.repack.jar :as jar]))
+            [clojure.pprint :as pprint]))
 
 (defn help [project]
   (println "\nSub-tasks for repackage are available:\n")
@@ -14,17 +13,18 @@
   (println "deply              Deploys repackaged jars"))
 
 (defn manifest [project]
-  (manifest/create-manifest project))
+  (clojure.pprint/pprint
+    (manifest/create-manifest project)))
 
 (defn project [project])
 
 (defn install [project])
 
-(defn jar [project]
+#_(defn jar [project]
   (let [manifest (manifest/create-manifest project)]
     (jar/create-jars project manifest)))
 
-(defn pom [project]
+#_(defn pom [project]
   (let [manifest (manifest/create-manifest project)]
     (pom/create-poms project manifest)))
 
@@ -35,11 +35,9 @@
   (condp = sub
     nil        (apply help project more)
     "help"     (apply help project more)
-    "manifest" (manifest project)
-    "jar"      (jar project)
-    "pom"      (pom project)
-    "install"  (apply install project more)
-    "push"     (apply push project more)))
-
-
-(repack nil)
+    "manifest" (manifest project))
+    ;;"s"      (jar project)
+    ;;"pom"      (pom project)
+    ;;"install"  (apply install project more)
+    ;;"push"     (apply push project more))
+  )
