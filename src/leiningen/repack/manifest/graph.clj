@@ -2,9 +2,14 @@
   (:require [korra.common :refer [*sep*]]
             [korra.resolve :as resolve]))
 
-(defn resolve-with-ns [x dependencies]
+(defn resolve-with-ns [x dependencies project]
   (or (->> dependencies
-           (map #(if (resolve/resolve-with-deps x %) %))
+           (map #(if (resolve/resolve-with-deps x % :repositories
+                                                ;; korra assumes
+                                                ;; repositories is a
+                                                ;; map, lein accepts a
+                                                ;; collection of pairs
+                                                (into {} (:repositories project))) %))
            (filter identity)
            first)
       (if (class? x)
@@ -36,7 +41,7 @@
                       (filter identity)
                       (map #(create-branch-coordinate project %)))
         ext-deps (->> (concat dep-namespaces dep-classes)
-                      (map #(resolve-with-ns % dependencies))
+                      (map #(resolve-with-ns % dependencies project))
                       (distinct)
                       (filter identity)
                       (filter (comp not is-clojure?)))]
