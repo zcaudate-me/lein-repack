@@ -167,6 +167,10 @@ Will output the project manifest for the root project as well as all its branche
 Running `lein repack split` will generate scaffolding of the root and branch projects in an interim directory, typically located in `target/interim` of your project directory.
 
 
+## Contributors
+
+[Kevin Downey](https://github.com/hiredman)
+
 ## License
 
 Copyright © 2014 Chris Zheng
