@@ -59,6 +59,8 @@ Once the artifacts are installed/deployed, they are now ready to be used. For ex
 ## Limitations
 
  - Currently only work with clojure code bases 
+ - Uses :require and :use forms for working out dependencies
+ - Not working with clojurescript (Yet)
 
 ## Usage
 
