@@ -26,9 +26,9 @@ Add `lein-repack` to your project.clj file that you wish to repack:
                                ...]}}
                                
     ;; defaults, can be left out
-    :repack {:root lama  
-             :exclude []
-             :levels 1}
+    :repack {:root lama    ;; by default, it assumes that the root namespace is the same as the name of the project
+             :exclude []   ;; by default, it will package all files. Add modules to only in the root project only
+             :levels 1     ;; by default, it will package one level of directory nesting. This should be enough for most projects}
 )
 ```
 
