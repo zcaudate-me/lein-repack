@@ -6,7 +6,7 @@
 
 (defn install [project manifest]
   (split project manifest)
-  (let [subprojects (flatten (topsort-branch-deps manifest))]
+  (let [subprojects (-> manifest topsort-branch-deps flatten distinct)]
     (doseq [entry subprojects]
       (let [sproject (project/read (interim-path project "branches" (:id entry) "project.clj"))]
         (install/install sproject)))

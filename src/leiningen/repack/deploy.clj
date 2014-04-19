@@ -7,7 +7,7 @@
 
 (defn deploy [project manifest repo]
   (split project manifest)
-  (let [subprojects (flatten (topsort-branch-deps manifest))]
+  (let [subprojects (-> manifest topsort-branch-deps flatten distinct)]
     (doseq [entry subprojects]
       (let [sproject (project/read (interim-path project "branches" (:id entry) "project.clj"))]
         (deploy/deploy sproject repo)))

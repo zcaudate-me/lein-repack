@@ -4,6 +4,7 @@
             [leiningen.repack.split :as split]
             [leiningen.repack.install :as install]
             [leiningen.repack.deploy :as deploy]
+            [leiningen.repack.push :as push]
             [clojure.pprint :as pprint]))
 
 (defn help [project & args]
@@ -13,7 +14,8 @@
   (println "split              Splits the main project into several interim projects")
   (println "clean              Removes the interim folder")
   (println "install            Install all the interim projects to local repo")
-  (println "deploy              Deploys all the repackaged jars"))
+  (println "deploy             Deploys all the repackaged jars")
+  (println "push               Deployment the old-school way"))
 
 (defn manifest [project]
   (clojure.pprint/pprint
@@ -39,6 +41,11 @@
                  (or repo "clojars"))
   (println "The repacked jars have been successfully deployed."))
 
+(defn push [project]
+  (push/push project
+                 (manifest/create-manifest project))
+  (println "The repacked jars have been successfully deployed."))
+  
 (defn repack [project & [sub & more]]
   (condp = sub
     nil        (apply help project more)
@@ -48,4 +55,5 @@
     "clean"    (clean project)
     "install"  (install project)
     "deploy"   (apply deploy project more)
+    "push"     (push project)
     (apply help project more)))

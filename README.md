@@ -2,6 +2,13 @@
 
 Repack your project for deployment and distribution
 
+### Whats New
+
+#### 0.1.3
+
+ - Added `push` for old school
+ - Fix bug where projects are installed multiple times
+ 
 ## Motivation
 
 `lein-repack` was written to solve a problem I had with utilities and general purpose libraries. In my experience, clojure libraries are much better when they are distributed in small packages. However, functionality is much easier to develop when the project is big: when we try to build our general purpose libaries in small packages, they become a nightmare to test and deploy.
@@ -22,7 +29,7 @@ Add `lein-repack` to your project.clj file that you wish to repack:
   (defproject lama ....
   
     :profiles {:dev {:plugins [...
-                               [lein-repack "0.1.2"] ;; Current latest version
+                               [lein-repack "0.1.3"] ;; Current latest version
                                ...]}}
                                
     ;; defaults, can be left out
