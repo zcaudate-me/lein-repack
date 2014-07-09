@@ -33,7 +33,7 @@ Add `lein-repack` to your project.clj file that you wish to repack:
   (defproject lama ....
   
     :profiles {:dev {:plugins [...
-                               [lein-repack "0.1.3"] ;; Current latest version
+                               [lein-repack "0.1.4"] ;; Current latest version
                                ...]}}
                                
     ;; defaults, can be left out
