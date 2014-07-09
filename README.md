@@ -6,7 +6,7 @@ Repack your project for deployment and distribution
 
 #### 0.1.4
 
- - Added feature so that deeply namespaced projects will also be repacked.
+ - Added [feature](https://github.com/zcaudate/lein-repack/issues/3) so that deeply namespaced projects will also be repacked.
 
 #### 0.1.3
 
@@ -300,9 +300,9 @@ Running `lein repack split` will generate scaffolding of the root and branch pro
 
 ## Contributors
 
-[Chris Zheng](https://github.com/zcaudate)
-[Kevin Downey](https://github.com/hiredman)
-[Jeroen van Dijk](https://github.com/jeroenvandijk)
+- [Chris Zheng](https://github.com/zcaudate)
+- [Kevin Downey](https://github.com/hiredman)
+- [Jeroen van Dijk](https://github.com/jeroenvandijk)
 
 ## License
 
