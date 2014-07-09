@@ -1,6 +1,6 @@
-(ns hara.common.fn
-  (:require [hara.common.error :refer [suppress]]
-            [hara.common.types :refer [hash-map? hash-set?]]))
+(ns a.b.c.hara.common.fn
+  (:require [a.b.c.hara.common.error :refer [suppress]]
+            [a.b.c.hara.common.types :refer [hash-map? hash-set?]]))
 
 ;; ## Calling Conventions
 ;;

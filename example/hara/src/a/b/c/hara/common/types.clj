@@ -1,4 +1,4 @@
-(ns hara.common.types)
+(ns a.b.c.hara.common.types)
 
 ;; ## Type Predicates
 ;;

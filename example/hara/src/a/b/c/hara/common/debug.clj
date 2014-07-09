@@ -1,4 +1,4 @@
-(ns hara.common.debug)
+(ns a.b.c.hara.common.debug)
 
 ;; ## Threads
 ;;

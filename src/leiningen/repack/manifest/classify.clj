@@ -6,7 +6,9 @@
             [korra.common :refer :all]))
 
 (defn name->path [name]
-  (.replaceAll (munge (str name)) "\\." *sep*))
+  (-> (str name)
+      (.replaceAll "\\." *sep*)
+      (.replaceAll "-" "_")))
 
 (defn list-clojure-files [dir]
   (filter (fn [f] (re-find #"^[^\.].*\.cljs?$" (.getName f)))
@@ -99,3 +101,10 @@
                     :files (mapv (fn [x] (-> x :file (.getPath))) items)
                     :items (mapv (fn [item] (assoc item :file (-> item :file (.getPath)))) items)}])))
        (into {})))
+
+
+(comment
+  (submodule-file?
+   (first (list-clojure-files "example/hara/src"))
+   (.getAbsolutePath (io/file "example/hara/src/a/b/c"))
+   "hara" []))

@@ -5,10 +5,9 @@
             :url "http://http://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :codox {:include [a.b.c.hara.common]}
-  :repack {:root a
+  :repack {:root a.b.c.hara
            :exclude []
-           :levels 4
-           :name-fn (fn [name package] (clojure.string/join "." (cons name (drop 3 (clojure.string/split package #"\.")))))}
+           :levels 2}
   :profiles {:dev {:dependencies [[midje "1.6.3"]
                                   [clj-time "0.6.0"]
                                   [im.chit/korra "0.1.0"]]

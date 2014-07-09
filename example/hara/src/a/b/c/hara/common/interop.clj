@@ -1,5 +1,5 @@
-(ns hara.common.interop
-  (:require [hara.common.lettering :as l]))
+(ns a.b.c.hara.common.interop
+  (:require [a.b.c.hara.common.lettering :as l]))
 
 (defn invoke [obj method & args]
   (clojure.lang.Reflector/invokeInstanceMethod obj method (into-array Object args)))

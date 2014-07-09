@@ -1,4 +1,4 @@
-(ns hara.common.error)
+(ns a.b.c.hara.common.error)
 
 ;; ## Errors
 ;;

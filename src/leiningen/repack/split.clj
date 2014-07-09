@@ -40,3 +40,13 @@
   (create-scaffold project manifest)
   (create-source-files project manifest)
   (create-project-clj-files project manifest))
+
+
+(comment
+  (require '[leiningen.repack.manifest :as manifest])
+  (def project (project/read "example/hara/project.clj"))
+  (def manifest (manifest/create-manifest project))
+  (clean project)
+  (create-scaffold project manifest)
+  (create-source-files project manifest)
+  (create-project-clj-files project manifest))

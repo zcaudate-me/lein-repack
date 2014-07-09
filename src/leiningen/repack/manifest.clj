@@ -16,14 +16,13 @@
                                          (concat clojure)
                                          (vec))
                       :files (mapv (fn [f] (.replace (.getPath f) (str root *sep*) "")) root-files)))
-     :branches (let [name-fn (if-let [name-fn-form (get-in project [:repack :name-fn])] (eval name-fn-form) #(str %1 "." %2))
-                     modules (classify/classify-modules branches)
+     :branches (let [modules (classify/classify-modules branches)
                      pkg-lu  (graph/create-branch-lookup modules)]
                  (->> modules
                       (map (fn [[k {:keys [package dep-namespaces dep-classes files]}]]
                              [k (-> project
                                     (select-keys [:group :name :version])
-                                    (update-in [:name] #(name-fn % package))
+                                    (update-in [:name] #(str % "." package))
                                     (assoc :dependencies (->> [project branches pkg-lu
                                                                dep-namespaces dep-classes]
                                                               (apply graph/create-branch-dependencies)
@@ -38,25 +37,9 @@
 
 
 (comment
-  (clojure.pprint/pprint
-   (create-manifest (project/read "example/hara/project.clj")))
+  (create-manifest (project/read "example/hara/project.clj"))
 
+  (classify/split-project-files (project/read "example/hara/project.clj"))
   (-> (project/read "example/hara/project.clj")
       (project/unmerge-profiles [:default])
-      (split-project-files)
-      second)
-
-
-  #_{:root {:group "im.chit"
-            :name  "hara"
-            :version "1.1.0"
-            :dependencies [[org.clojure/clojure "1.5.1"]
-                           [im.chit/hara.common "1.1.0"]]
-            :files []}
-     :branches
-     {"common" {:group "im.chit"
-                :name "hara.common"
-                :version "1.1.0"
-                :dependencies [[org.clojure/clojure "1.5.1"]]}}
-
-     })
+      (classify/split-project-files)))

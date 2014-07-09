@@ -1,4 +1,4 @@
-(defproject lein-repack "0.1.4-SNAPSHOT"
+(defproject lein-repack "0.1.4"
   :description "Repack your project for deployment"
   :url "https://www.github.com/zcaudate/lein-repack"
   :license {:name "The MIT License"

@@ -1,8 +1,8 @@
-(ns hara.common.collection
+(ns a.b.c.hara.common.collection
   (:require [clojure.set :as set]
-            [hara.common.error :refer [suppress]]
-            [hara.common.fn :refer [pcheck->]]
-            [hara.common.types :refer [hash-map? hash-set?]]))
+            [a.b.c.hara.common.error :refer [suppress]]
+            [a.b.c.hara.common.fn :refer [pcheck->]]
+            [a.b.c.hara.common.types :refer [hash-map? hash-set?]]))
 
  ;; ## Useful Methods
 

@@ -1,4 +1,4 @@
-(ns hara.common.keyword
+(ns a.b.c.hara.common.keyword
   (:require [clojure.string :as st]))
             
 ;; ## Keyword Methods

@@ -1,6 +1,6 @@
-(ns hara.common.constructor
-  (:require [hara.common.types :refer [bytes?]]
-            [hara.common.error :refer [error]]))
+(ns a.b.c.hara.common.constructor
+  (:require [a.b.c.hara.common.types :refer [bytes?]]
+            [a.b.c.hara.common.error :refer [error]]))
 
 ;; ## Constructors
 

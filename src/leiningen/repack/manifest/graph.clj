@@ -46,25 +46,17 @@
                       (distinct)
                       (filter identity)
                       (filter (comp not is-clojure?)))]
-    ;;(println "For " dep-namespaces dep-classes ext-deps)
     [name (concat own-deps ext-deps)]))
 
 
 
 
 (comment
-  (resolve/resolve-coordinates 'cemerick.pomegranate '[com.cemerick/pomegranate "0.2.0"])
-  (resolve/resolve-with-deps 'cemerick.pomegranate '[com.cemerick/pomegranate "0.2.0"])
-
-  (resolve-with-ns 'cemerick.pomegranate '[[com.cemerick/pomegranate "0.2.0"]])
-
-  (clojure.repl/pst)
   (require '[leiningen.core.project :as project])
   (require '[leiningen.repack.manifest :as manifest])
-  (-> (project/read "example/hara/project.clj")
-      (project/unmerge-profiles [:default])
-      (classify/split-project-files)
-      second
-      (classify/classify-modules))
 
-  )
+  (resolve/resolve-coordinates 'cemerick.pomegranate '[com.cemerick/pomegranate "0.2.0"])
+  (resolve/resolve-with-deps 'cemerick.pomegranate '[com.cemerick/pomegranate "0.2.0"])
+  (resolve-with-ns 'cemerick.pomegranate '[[com.cemerick/pomegranate "0.2.0"]]
+                   (project/read "example/hara/project.clj"))
+ )

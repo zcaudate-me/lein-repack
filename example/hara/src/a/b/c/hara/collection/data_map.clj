@@ -1,8 +1,8 @@
-(ns hara.collection.data-map
+(ns a.b.c.hara.collection.data-map
   (:require [clojure.set :as set]
-            [hara.common.error :refer [error]]
-            [hara.common.fn :refer [eq-> check pcheck->]]
-            [hara.common.types :refer [hash-map? hash-set?]]))
+            [a.b.c.hara.common.error :refer [error]]
+            [a.b.c.hara.common.fn :refer [eq-> check pcheck->]]
+            [a.b.c.hara.common.types :refer [hash-map? hash-set?]]))
 
 (defn combine-obj
   "Looks for the value within the set `s` that matches `v` when
