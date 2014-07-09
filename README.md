@@ -10,7 +10,7 @@ Repack your project for deployment and distribution
 
 #### 0.1.3
 
- - Added `push` for old school
+ - Added `push` for old school deployment
  - Fix bug where projects are installed multiple times
  
 ## Motivation
@@ -86,6 +86,7 @@ Once installed in your project.clj (or globally via profile.clj)
     clean              Removes the interim folder
     install            Install all the interim projects to local repo
     deploy             Deploys all the repackaged jars
+    push               Deployment the old-school way
 
 ### clean, install, deploy
 
