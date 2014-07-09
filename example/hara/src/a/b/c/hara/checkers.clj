@@ -1,5 +1,5 @@
-(ns hara.checkers
-  (:require [hara.common.fn :refer [check]]))
+(ns a.b.c.hara.checkers
+  (:require [a.b.c.hara.common.fn :refer [check]]))
 
 (defn is-type-fn [t chk]
   (fn [obj]
@@ -20,7 +20,7 @@
 
 (defn is-ova [& [chk]]
   (fn [obj]
-    (and (= "class hara.ova.Ova" (str (type obj)))
+    (and (= "class a.b.c.hara.ova.Ova" (str (type obj)))
         (let [schk (or chk (sequence chk))]
           (check (persistent! obj) schk)))))
 

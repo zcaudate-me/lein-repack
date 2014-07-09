@@ -27,8 +27,9 @@
                           (repeat k)))))
          (apply merge)))
 
-(defn create-branch-coordinate [{:keys [version name group]} package]
-  [(symbol (str group *sep* name "." package)) version])
+(defn create-branch-coordinate [{:keys [version name group] :as project} package]
+  (let [name-fn (if-let [name-fn-form (get-in project [:repack :name-fn])] (eval name-fn-form) #(str %1 "." %2))]
+   [(symbol (str group *sep* (name-fn name package))) version]))
 
 (defn create-root-dependencies [project branches]
   (mapv (fn [k] (create-branch-coordinate project k))
