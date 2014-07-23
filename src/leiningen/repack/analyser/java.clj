@@ -7,5 +7,5 @@
     (analyser/map->FileInfo
       {:type :java
        :class file
-       :dep-classes (vec (mapcat grab-classes body))
+       ;;:dep-classes (vec (mapcat grab-classes body))
        :file file})))
