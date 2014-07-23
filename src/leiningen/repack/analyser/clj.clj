@@ -23,17 +23,26 @@
                          (rest x))))
             (next form))))
 
-(defn grab-gen-class [form])
+(defn grab-gen-class [ns body]
+  (if-let [gen-form (->> body
+                         (filter (fn [form]
+                                   (= :gen-class (first form))))
+                         first)]
+    [(or (->> gen-form next
+               (apply hash-map)
+               :name)
+          ns)]))
 
-(defn grab-def-classes [file])
+(defn grab-def-classes [file]
+  '[java.lang.String])
 
-(defmethod analyser/file-info :clj 
+(defmethod analyser/file-info :clj
   [file]
   (let [[_ ns & body] (read-string (slurp file))]
     (analyser/map->FileInfo
       {:type :clj
        :ns ns
-       :classes (concat (grab-gen-class body)
+       :classes (concat (grab-gen-class ns body)
                         (grab-def-classes file))
        :file file
        :dep-clj  (vec (mapcat #(grab-namespaces % [:use :require]) body))

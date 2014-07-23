@@ -52,7 +52,7 @@
 
 (defn split-project-files [root-dir base level excludes re-pattern]
   (let [files (->> (filter-sources root-dir re-pattern)
-                   (group-by #(submodule-file?
+                   (group-by #(is-submodule-file?
                                % root-dir base excludes)))
         parent-files (vec (get files false))
         module-files (->> (get files true)

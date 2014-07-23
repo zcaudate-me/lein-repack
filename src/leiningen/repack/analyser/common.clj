@@ -19,10 +19,10 @@
              last)
          "." (-> this :type name)
          (let [m (-> {}
-                     (assoc-if :clj (-> this :dep-clj count))
+                     (assoc-if :clj  (-> this :dep-clj count))
                      (assoc-if :cljs (-> this :dep-cljs count))
-                     (assoc-if :classes (:classes this))
-                     (assoc-if :imports (-> this :dep-imports) ))]
+                     (assoc-if :classes (-> this :classes
+                     (assoc-if :imports (-> this :dep-imports count)))]
            (if (empty? m) "" m)))))
 
 (defmethod print-method FileInfo [v w]
