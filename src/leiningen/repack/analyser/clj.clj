@@ -1,22 +1,28 @@
 (ns leiningen.repack.analyser.clj
   (:require [leiningen.repack.analyser :as analyser]
-            [leiningen.repack.data.file-info :refer [map->FileInfo]]
+            [clojure.java.io :as io]
             [clojure.set :as set]))
 
-(defn grab-namespaces [form fsyms]
+(defn get-namespaces [form fsyms]
   (when (some #(= % (first form)) fsyms)
     (mapcat (fn [x]
               (cond (symbol? x) [x]
 
                     (or (vector? x) (list? x))
-                    (if (and (some vector? x)
-                             (not (some keyword? x)))
-                      (map #(-> (first x) (str "." %))
-                           (filter vector? x))
-                      [(first x)])))
+                    (let [[rns & more] x]
+                      (if (or (empty? more)
+                              (some keyword? more))
+                        [rns]
+                        (->> more
+                             (map (fn [y] (-> rns
+                                             (str "."
+                                                  (if (vector? y) (first y) y))
+                                             symbol)))
+
+                             )))))
             (next form))))
 
-(defn grab-dep-imports [form]
+(defn get-imports [form]
   (when (= :import (first form))
     (mapcat (fn [x]
               (cond (symbol? x) [x]
@@ -26,7 +32,7 @@
                          (rest x))))
             (next form))))
 
-(defn grab-gen-class [ns body]
+(defn get-genclass [ns body]
   (if-let [gen-form (->> body
                          (filter (fn [form]
                                    (= :gen-class (first form))))
@@ -34,24 +40,33 @@
     [(or (->> gen-form next
                (apply hash-map)
                :name)
-          ns)]))
+         ns)]))
+
+(defn get-defclass [ns forms]
+  (->> forms
+       (keep (fn [form]
+               (and (list? form)
+                    ('#{deftype defrecord} (first form))
+                    (second form))))
+       (map (fn [ele] (symbol (str ns "." ele))))))
 
 (defmethod analyser/file-info :clj
   [file]
-  (let [[_ ns & body] (read-string (slurp file))]
-    (map->FileInfo
-     {:type :clj
-      :file file
-      :expose (set/union #{[:clj ns]}
-                         (map (fn [cls] [:java cls]) (grab-gen-class ns body)))
-      :import (set/union (->> body
-                              (mapcat #(grab-namespaces % [:use :require]))
+  (let [[[_ ns & body] & forms]
+        (read-string (str "[" (-> file io/reader slurp) "]"))]
+    {:exports (set/union #{[:clj ns]}
+                         (set (map (fn [cls] [:java cls]) (get-genclass ns body)))
+                         (set (map (fn [cls] [:java cls]) (get-defclass ns forms))))
+     :imports (set/union (->> body
+                              (mapcat #(get-namespaces % [:use :require]))
                               (map (fn [clj] [:clj clj]))
                               set)
                          (->> body
-                              (mapcat grab-dep-imports)
-                              (map (fn [clj] [:java clj]))))})))
+                              (mapcat get-imports)
+                              (map (fn [clj] [:java clj]))
+                              set))}))
 
 (comment
   (require '[clojure.java.io :as io])
-  (into {} (analyser/file-info (io/file "src/leiningen/repack/analyser/clj.clj"))))
+  (into {} (analyser/file-info
+            (io/file "src/leiningen/repack/analyser/clj.clj"))))

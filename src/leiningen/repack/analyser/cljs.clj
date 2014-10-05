@@ -1,20 +1,19 @@
 (ns leiningen.repack.analyser.cljs
-  (:require [leiningen.repack.analyser.clj :refer [grab-namespaces]]
+  (:require [leiningen.repack.analyser.clj :refer [get-namespaces]]
             [leiningen.repack.analyser :as analyser]
-            [leiningen.repack.data.file-info :refer [map->FileInfo]]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [clojure.java.io :as io]))
 
 (defmethod analyser/file-info :cljs
   [file]
-  (let [[_ ns & body] (read-string (slurp file))]
-    (map->FileInfo
-     {:type :cljs
-      :file file
-      :expose #{[:cljs ns]}
-      :import (set/union (->> body
-                              (mapcat #(grab-namespaces % [:use :require]))
+  (let [[[_ ns & body] & forms]
+        (read-string (str "[" (-> file io/reader slurp) "]"))]
+    {:exports #{[:cljs ns]}
+     :imports (set/union (->> body
+                              (mapcat #(get-namespaces % [:use :require]))
                               (map (fn [clj] [:cljs clj]))
                               set)
                          (->> body
-                              (mapcat #(grab-namespaces % [:use-macros :require-macros]))
-                              (map (fn [clj] [:clj clj]))))})))
+                              (mapcat #(get-namespaces % [:use-macros :require-macros]))
+                              (map (fn [clj] [:clj clj]))
+                              set))}))

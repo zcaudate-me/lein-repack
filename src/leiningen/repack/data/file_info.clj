@@ -3,12 +3,7 @@
 
 (defrecord FileInfo []
   Object
-  (toString [this]
-    (str (-> (or (-> this :ns name)
-                 (-> this :class name))
-             (string/split #"\.")
-             last)
-         "." (-> this :type name))))
+  (toString [this] (-> this :path)))
 
 (defmethod print-method FileInfo [v w]
   (.write w (str v)))
