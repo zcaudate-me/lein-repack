@@ -8,7 +8,6 @@
       last
       keyword))
 
-;;(def file-info 1)
 (defmulti file-info file-type)
 
 (defmethod file-info :default

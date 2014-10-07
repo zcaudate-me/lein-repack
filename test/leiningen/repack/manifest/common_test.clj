@@ -2,10 +2,10 @@
   (:use midje.sweet)
   (:require [leiningen.repack.manifest.common :refer :all]))
 
-^{:refer leiningen.repack.manifest.common/build-manifest :added "0.1.5"}
+^{:refer leiningen.repack.manifest.common/build-filemap :added "0.1.5"}
 (fact "builds manifest for resources and java folder"
 
-  (build-manifest "example/repack.advance"
+  (build-filemap "example/repack.advance"
                   {:subpackage "resources"
                    :path "resources"
                    :distribute {"common" #{"common"}
@@ -16,7 +16,7 @@
                 "web"        anything  ;; {resources/web/a.html resources/web/b.html}
                 })
 
-  (build-manifest "example/repack.advance"
+  (build-filemap "example/repack.advance"
                   {:subpackage "jvm"
                    :path "java/im/chit/repack"
                    :distribute {"common" #{"common"}

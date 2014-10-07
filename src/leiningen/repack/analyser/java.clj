@@ -24,5 +24,5 @@
 
 (defmethod analyser/file-info :java [file]
   {:file file
-   :exports #{[:java (get-class file)]}
-   :imports (set (map (fn [jv] [:java jv]) (get-imports file)))})
+   :exports #{[:class (get-class file)]}
+   :imports (set (map (fn [jv] [:class jv]) (get-imports file)))})

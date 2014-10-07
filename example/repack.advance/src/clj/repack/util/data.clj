@@ -1,2 +1,3 @@
 (ns repack.util.data
-  (:use repack.util.aray))
+  (:use repack.util.array
+        clojure.core))

@@ -1,30 +1,45 @@
 (ns leiningen.repack.manifest
   (:require [clojure.java.io :as io]
             [clojure.set :as set]
+            [leiningen.core.project :as project]
+            [leiningen.repack.graph
+             [internal :as internal]
+             [external :as external]]
             [leiningen.repack.analyser :as analyser]
+            [leiningen.repack.manifest [common :refer [build-filemap]] source]
             [leiningen.repack.data.file-info :refer [map->FileInfo]]
             [leiningen.repack.data.util :as util]))
 
-(defn create-manifest
-  ([files] (create-manifest files {:pnil "default"}))
-  ([files opts]
-     (reduce-kv (fn [m k v]
-                  (let [grp (or k (:pnil opts))
-                        root-dir (or (:root opts) "")]
-                    (->> v
-                         (map (fn [ele]
-                                (let [fele  (io/file root-dir (or (:folder opts) ".") ele)
-                                      finfo  (analyser/file-info fele)]
-                                  (-> finfo
-                                      (assoc
-                                          :type (analyser/file-type fele)
-                                          :path (util/relative-path root-dir fele))
-                                      (map->FileInfo)))))
-                         (set)
-                         (assoc m grp))))
-                {}
-                files)))
+(defn create-root-entry [project branches]
+  (-> (select-keys project [:name :group :version :dependencies])
+      (update-in [:dependencies] #(apply conj % (map :coordinate branches)))
+      (assoc :files [])))
 
+(defn create-branch-entry [project filemap i-deps ex-deps pkg]
+  (let [{:keys [group version] base :name} project
+        name   (str group "/" base "." pkg)]
+    {:coordinate [(symbol name) version]
+     :files (mapv :path (get filemap pkg))
+     :dependencies (->> (get i-deps pkg)
+                        (map (fn [k]
+                               [(symbol (str group "/" base "." pkg)) version]))
+                        (concat (get ex-deps pkg))
+                        vec)
+     :version version
+     :name name
+     :group group}))
 
-(defn merge-manifests [& manifests]
-  (apply merge-with set/union manifests))
+(defn create [project]
+  (let [cfgs (:repack project)
+        cfgs (if (vector? cfgs) cfgs [cfgs])
+        filemap   (->> cfgs
+                       (map #(build-filemap (:root project) %))
+                       (apply merge-with set/union))
+        i-deps (merge-with set/union
+                           (internal/resource-dependencies cfgs)
+                           (internal/find-all-module-dependencies filemap))
+        ex-deps  (external/find-all-external-imports filemap i-deps project)
+        branches (->> (keys filemap)
+                      (mapv #(create-branch-entry project filemap i-deps ex-deps %)))]
+    {:root (create-root-entry project branches)
+     :branches branches}))

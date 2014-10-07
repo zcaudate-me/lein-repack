@@ -1,2 +1,2 @@
 (ns repack.core
-  (:require [repack.core :refer :all]))
+  (:require [korra.common :refer :all]))
