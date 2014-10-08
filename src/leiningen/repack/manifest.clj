@@ -10,9 +10,15 @@
             [leiningen.repack.data.file-info :refer [map->FileInfo]]
             [leiningen.repack.data.util :as util]))
 
+(defn clj-version [project]
+  (->> (:dependencies project)
+       (filter #(= (first %) 'org.clojure/clojure))
+       (first)
+       (second)))
+
 (defn create-root-entry [project branches]
   (-> (select-keys project [:name :group :version :dependencies])
-      (update-in [:dependencies] #(apply conj % (map :coordinate branches)))
+      (update-in [:dependencies] #(apply conj (vec %) (map :coordinate branches)))
       (assoc :files [])))
 
 (defn create-branch-entry [project filemap i-deps ex-deps pkg]
@@ -22,8 +28,9 @@
      :files (mapv :path (get filemap pkg))
      :dependencies (->> (get i-deps pkg)
                         (map (fn [k]
-                               [(symbol (str group "/" base "." pkg)) version]))
-                        (concat (get ex-deps pkg))
+                               [(symbol (str group "/" base "." k)) version]))
+                        (concat [['org.clojure/clojure (clj-version project)]]
+                                (get ex-deps pkg))
                         vec)
      :version version
      :name name
@@ -38,8 +45,8 @@
         i-deps (merge-with set/union
                            (internal/resource-dependencies cfgs)
                            (internal/find-all-module-dependencies filemap))
-        ex-deps  (external/find-all-external-imports filemap i-deps project)
-        branches (->> (keys filemap)
-                      (mapv #(create-branch-entry project filemap i-deps ex-deps %)))]
+        ex-deps  (filter identity (external/find-all-external-imports filemap i-deps project))
+        ks       (keys filemap)
+        branches (mapv #(create-branch-entry project filemap i-deps ex-deps %) ks)]
     {:root (create-root-entry project branches)
-     :branches branches}))
+     :branches (zipmap ks branches)}))

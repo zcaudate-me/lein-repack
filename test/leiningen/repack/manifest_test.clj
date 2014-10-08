@@ -13,13 +13,13 @@
      (project/unmerge-profiles [:default])))
 
 (-> (create
-     (-> (project/read "example/repack.advance/project.clj")
+     (-> (project/read "/Users/Chris/dev/chit/hara/project.clj")
          (project/unmerge-profiles [:default])))
-    (first)
-    (get "core")
-    first
-    (->> (into {})))
+    :branches
+    (get "class.reflect"))
 
-(:dependencies
- (-> (project/read "example/repack.advance/project.clj")
-     (project/unmerge-profiles [:default])))
+(-> (create
+     (-> (project/read "example/repack.advance/project.clj")
+         (project/unmerge-profiles [:default]))))
+
+(clj-version (project/read "example/repack.advance/project.clj"))
