@@ -21,5 +21,5 @@
 (fact "behavior of the java analyser"
   (analyser/file-info
    (io/file "example/repack.advance/java/im/chit/repack/web/Client.java"))
-  => (contains '{:exports #{[:java im.chit.repack.web.Client]}
-                 :imports #{[:java im.chit.repack.common.Hello]}}))
+  => (contains '{:exports #{[:class im.chit.repack.web.Client]}
+                 :imports #{[:class im.chit.repack.common.Hello]}}))

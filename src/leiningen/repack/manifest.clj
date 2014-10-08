@@ -6,6 +6,7 @@
              [internal :as internal]
              [external :as external]]
             [leiningen.repack.analyser :as analyser]
+            [leiningen.repack.analyser [java clj cljs]]
             [leiningen.repack.manifest [common :refer [build-filemap]] source]
             [leiningen.repack.data.file-info :refer [map->FileInfo]]
             [leiningen.repack.data.util :as util]))
@@ -48,5 +49,7 @@
         ex-deps  (filter identity (external/find-all-external-imports filemap i-deps project))
         ks       (keys filemap)
         branches (mapv #(create-branch-entry project filemap i-deps ex-deps %) ks)]
+    ;;(println i-deps)
+    ;;(println (get (zipmap ks branches) "web"))
     {:root (create-root-entry project branches)
      :branches (zipmap ks branches)}))

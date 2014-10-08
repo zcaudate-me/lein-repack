@@ -53,6 +53,6 @@
   (analyser/file-info
    (io/file "example/repack.advance/src/clj/repack/web/client.clj"))
   => '{:exports #{[:clj repack.web.client]
-                  [:java repack.web.client.Main]
-                  [:java repack.web.client.Client]}
+                  [:class repack.web.client.Main]
+                  [:class repack.web.client.Client]}
        :imports #{[:clj repack.core]}})

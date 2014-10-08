@@ -4,7 +4,7 @@
             [leiningen.core.project :as project]))
 
 (comment
-  (install
+  (deploy
    (-> (project/read "example/repack.advance/project.clj")
        (project/unmerge-profiles [:default])))
 

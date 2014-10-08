@@ -1,6 +1,7 @@
 (ns leiningen.repack.manifest.common-test
   (:use midje.sweet)
-  (:require [leiningen.repack.manifest.common :refer :all]))
+  (:require [leiningen.repack.manifest.common :refer :all]
+            [leiningen.repack.analyser [java]]))
 
 ^{:refer leiningen.repack.manifest.common/build-filemap :added "0.1.5"}
 (fact "builds manifest for resources and java folder"
@@ -26,3 +27,13 @@
                 "jvm"        anything  ;; {java/im/chit/repack/native/Utils.java},
                 "web"        anything  ;; {java/im/chit/repack/web/Client.java}
                 }))
+
+(-> (build-filemap "example/repack.advance"
+                   {:subpackage "jvm"
+                    :path "java/im/chit/repack"
+                    :distribute {"common" #{"common"}
+                                 "web"    #{"web"}}
+                    :dependents #{"core"}})
+    (get "web")
+    first
+    (#(into {} %)))

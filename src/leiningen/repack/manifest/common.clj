@@ -31,7 +31,6 @@
 (defmethod build-filemap :default
   [project-dir cfg]
   (let [res-path   (:path cfg)
-        _          (println project-dir res-path cfg)
         res-folder (io/file project-dir res-path)
         subpackage (:subpackage cfg)
         distro     (->> (file-seq res-folder)

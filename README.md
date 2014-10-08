@@ -4,6 +4,13 @@ Repack your project for deployment and distribution
 
 ### Whats New
 
+#### 0.2.3
+
+ - Overhauled analyser to make it more extensible
+ - Support for java, clojurescript and resources
+ - Breaking changes to :repack project map. See [example](https://github.com/zcaudate/lein-repack/tree/master/example/repack.advance/project.clj) for typical use cases. 
+ - `push` has [stopped working](http://grokbase.com/t/gg/clojure/149rrwe3nw/psa-clojars-scp-disabled-until-further-notice) so `lein repack deploy` has to be used instead.
+ 
 #### 0.1.4
 
  - Added [feature](https://github.com/zcaudate/lein-repack/issues/3) so that deeply namespaced projects will also be repacked.
@@ -33,14 +40,13 @@ Add `lein-repack` to your project.clj file that you wish to repack:
   (defproject lama ....
   
     :profiles {:dev {:plugins [...
-                               [lein-repack "0.1.4"] ;; Current latest version
+                               [lein-repack "0.2.3"] ;; Current latest version
                                ...]}}
                                
     ;; defaults, can be left out
-    :repack {:root lama    ;; by default, it assumes that the root namespace is the same as the name of the project
-             :exclude []   ;; by default, it will package all files. Add modules to only in the root project only
-             :levels 1     ;; by default, it will package one level of directory nesting. This should be enough for most projects}
-)
+    :repack [{:type :clojure
+              :path "src"
+              :levels 1}])
 ```
 
 ## Walkthrough
@@ -67,11 +73,6 @@ Running `lein repack deploy` will deploy all four artifacts to clojars.
 
 Once the artifacts are installed/deployed, they are now ready to be used. For example, if only the functionality for `lama.weapons` were required for another project, it can be imported individually in the project by adding `[lama.weapons "0.1.0"]` to project dependencies. The entire project can be imported my adding `[lama "0.1.0"]` to project dependencies.
 
-## Limitations
-
- - Currently only work with clojure code bases 
- - Uses :require and :use forms for working out dependencies
- - Not working with clojurescript (Yet)
 
 ## Usage
 
@@ -88,216 +89,111 @@ Once installed in your project.clj (or globally via profile.clj)
     deploy             Deploys all the repackaged jars
     push               Deployment the old-school way
 
-### clean, install, deploy
-
-They work the same way as the built in leiningen commands but also generates subprojects
-
 ### manifest
 
-I developed `lein-repack` by using an existing project to test its behavior. `hara` is included in the [examples/hara](https://github.com/zcaudate/lein-repack/tree/master/example/hara) directory. Running the following commands
+An [example](https://github.com/zcaudate/lein-repack/tree/master/example/repack.advance/project.clj) project showing advanced features of `lein-repack` has been added, demonstrating how different types of files (`java`, `clj`, `cljs` as well as resource files) can be developed together and then packaged seperately depending on project specification:
 
-    $ cd example/hara
+    $ cd example/repack.advanced
     $ lein repack manifest
 
-Will output the project manifest for the root project as well as all its branches:
+The output the project manifest for the root project as well as all its branches can be seen below. Note the different types of files in the `web` branch:
 
 ```clojure
 {:root
  {:files [],
   :dependencies
-  [[org.clojure/clojure "1.5.1"]
-   [im.chit/hara.common.collection "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.error "1.1.0-SNAPSHOT"]
-   [im.chit/hara.import "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.keyword "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.fn "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.thread "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.debug "1.1.0-SNAPSHOT"]
-   [im.chit/hara.state "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.string "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.types "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.constructor "1.1.0-SNAPSHOT"]
-   [im.chit/hara.collection.data_map "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.lettering "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.control "1.1.0-SNAPSHOT"]
-   [im.chit/hara.common.interop "1.1.0-SNAPSHOT"]
-   [im.chit/hara.collection.hash_map "1.1.0-SNAPSHOT"]
-   [im.chit/hara.checkers "1.1.0-SNAPSHOT"]],
-  :version "1.1.0-SNAPSHOT",
-  :name "hara",
-  :group "im.chit"},
+  [[org.clojure/clojure "1.6.0"]
+   [im.chit/korra "0.1.2"]
+   [im.chit/repack.advance.resources "0.1.0-SNAPSHOT"]
+   [im.chit/repack.advance.jvm "0.1.0-SNAPSHOT"]
+   [im.chit/repack.advance.common "0.1.0-SNAPSHOT"]
+   [im.chit/repack.advance.core "0.1.0-SNAPSHOT"]
+   [im.chit/repack.advance.util.array "0.1.0-SNAPSHOT"]
+   [im.chit/repack.advance.util.data "0.1.0-SNAPSHOT"]
+   [im.chit/repack.advance.web "0.1.0-SNAPSHOT"]],
+  :version "0.1.0-SNAPSHOT",
+  :group "im.chit",
+  :name "repack.advance"},
  :branches
- {"common.collection"
-  {:coordinate [im.chit/hara.common.collection "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/collection.clj"],
+ {"web"
+  {:coordinate [im.chit/repack.advance.web "0.1.0-SNAPSHOT"],
+   :files
+   ["java/im/chit/repack/web/Client.java"
+    "resources/web/a.html"
+    "src/cljs/repack/web/client.cljs"
+    "src/clj/repack/web/client.clj"
+    "src/cljs/repack/web.cljs"
+    "resources/web/b.html"
+    "src/clj/repack/web.clj"],
    :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.fn "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.error "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.types "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.collection",
+   [[org.clojure/clojure "1.6.0"]
+    [im.chit/repack.advance.core "0.1.0-SNAPSHOT"]
+    [im.chit/repack.advance.util.array "0.1.0-SNAPSHOT"]
+    [im.chit/repack.advance.common "0.1.0-SNAPSHOT"]],
+   :version "0.1.0-SNAPSHOT",
+   :name "im.chit/repack.advance.web",
    :group "im.chit"},
-  "common.error"
-  {:coordinate [im.chit/hara.common.error "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/error.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.error",
+  "util.data"
+  {:coordinate [im.chit/repack.advance.util.data "0.1.0-SNAPSHOT"],
+   :files ["src/clj/repack/util/data.clj"],
+   :dependencies
+   [[org.clojure/clojure "1.6.0"]
+    [im.chit/repack.advance.util.array "0.1.0-SNAPSHOT"]],
+   :version "0.1.0-SNAPSHOT",
+   :name "im.chit/repack.advance.util.data",
    :group "im.chit"},
-  "import"
-  {:coordinate [im.chit/hara.import "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/import.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.import",
+  "util.array"
+  {:coordinate [im.chit/repack.advance.util.array "0.1.0-SNAPSHOT"],
+   :files
+   ["src/clj/repack/util/array.clj"
+    "src/clj/repack/util/array/sort.clj"],
+   :dependencies [[org.clojure/clojure "1.6.0"]],
+   :version "0.1.0-SNAPSHOT",
+   :name "im.chit/repack.advance.util.array",
    :group "im.chit"},
-  "common.keyword"
-  {:coordinate [im.chit/hara.common.keyword "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/keyword.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.keyword",
+  "core"
+  {:coordinate [im.chit/repack.advance.core "0.1.0-SNAPSHOT"],
+   :files ["src/clj/repack/core.clj"],
+   :dependencies
+   [[org.clojure/clojure "1.6.0"]
+    [im.chit/repack.advance.resources "0.1.0-SNAPSHOT"]],
+   :version "0.1.0-SNAPSHOT",
+   :name "im.chit/repack.advance.core",
    :group "im.chit"},
   "common"
-  {:coordinate [im.chit/hara.common "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common.clj"],
-   :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.fn "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.control "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.constructor "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.interop "1.1.0-SNAPSHOT"]
-    [im.chit/hara.import "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.string "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.thread "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.keyword "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.lettering "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.error "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.debug "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.types "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.collection "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common",
+  {:coordinate [im.chit/repack.advance.common "0.1.0-SNAPSHOT"],
+   :files
+   ["resources/common/a.txt"
+    "java/im/chit/repack/common/Hello.java"
+    "resources/common/b.txt"
+    "src/clj/repack/common.clj"],
+   :dependencies [[org.clojure/clojure "1.6.0"]],
+   :version "0.1.0-SNAPSHOT",
+   :name "im.chit/repack.advance.common",
    :group "im.chit"},
-  "common.fn"
-  {:coordinate [im.chit/hara.common.fn "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/fn.clj"],
-   :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.error "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.types "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.fn",
+  "jvm"
+  {:coordinate [im.chit/repack.advance.jvm "0.1.0-SNAPSHOT"],
+   :files ["java/im/chit/repack/native/Utils.java"],
+   :dependencies [[org.clojure/clojure "1.6.0"]],
+   :version "0.1.0-SNAPSHOT",
+   :name "im.chit/repack.advance.jvm",
    :group "im.chit"},
-  "common.thread"
-  {:coordinate [im.chit/hara.common.thread "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/thread.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.thread",
-   :group "im.chit"},
-  "common.debug"
-  {:coordinate [im.chit/hara.common.debug "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/debug.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.debug",
-   :group "im.chit"},
-  "state"
-  {:coordinate [im.chit/hara.state "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/state.clj"],
-   :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.fn "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.types "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.state",
-   :group "im.chit"},
-  "common.string"
-  {:coordinate [im.chit/hara.common.string "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/string.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.string",
-   :group "im.chit"},
-  "common.types"
-  {:coordinate [im.chit/hara.common.types "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/types.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.types",
-   :group "im.chit"},
-  "common.constructor"
-  {:coordinate [im.chit/hara.common.constructor "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/constructor.clj"],
-   :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.error "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.types "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.constructor",
-   :group "im.chit"},
-  "collection.data_map"
-  {:coordinate [im.chit/hara.collection.data_map "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/collection/data_map.clj"],
-   :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.fn "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.error "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.types "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.collection.data_map",
-   :group "im.chit"},
-  "common.lettering"
-  {:coordinate [im.chit/hara.common.lettering "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/lettering.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.lettering",
-   :group "im.chit"},
-  "common.control"
-  {:coordinate [im.chit/hara.common.control "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/control.clj"],
-   :dependencies [[org.clojure/clojure "1.5.1"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.control",
-   :group "im.chit"},
-  "common.interop"
-  {:coordinate [im.chit/hara.common.interop "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/common/interop.clj"],
-   :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.lettering "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.common.interop",
-   :group "im.chit"},
-  "collection.hash_map"
-  {:coordinate [im.chit/hara.collection.hash_map "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/collection/hash_map.clj"],
-   :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.keyword "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.types "1.1.0-SNAPSHOT"]
-    [im.chit/hara.common.collection "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.collection.hash_map",
-   :group "im.chit"},
-  "checkers"
-  {:coordinate [im.chit/hara.checkers "1.1.0-SNAPSHOT"],
-   :files ["a/b/c/hara/checkers.clj"],
-   :dependencies
-   [[org.clojure/clojure "1.5.1"]
-    [im.chit/hara.common.fn "1.1.0-SNAPSHOT"]],
-   :version "1.1.0-SNAPSHOT",
-   :name "hara.checkers",
+  "resources"
+  {:coordinate [im.chit/repack.advance.resources "0.1.0-SNAPSHOT"],
+   :files ["resources/stuff/y.edn" "resources/stuff/x.edn"],
+   :dependencies [[org.clojure/clojure "1.6.0"]],
+   :version "0.1.0-SNAPSHOT",
+   :name "im.chit/repack.advance.resources",
    :group "im.chit"}}}
 ```
 
 ### split
 
 Running `lein repack split` will generate scaffolding of the root and branch projects in an interim directory, typically located in `target/interim` of your project directory.
+
+### clean, install, deploy
+
+They work the same way as the built in leiningen commands but also generates subprojects
 
 ## Contributors
 

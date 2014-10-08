@@ -7,7 +7,7 @@
             [leiningen.repack.install :as install]
             [leiningen.deploy :as deploy]))
 
-(defn deploy [project manifest repo]
+(defn deploy [project repo]
   (split/split project)
   (let [manifest (manifest/create project)
         subprojects (-> manifest sort/topsort-branch-deps flatten distinct)]

@@ -1,6 +1,5 @@
 (ns leiningen.repack.graph.internal
-  (:require [clojure.set :as set]
-            [hara.sort :as sort]))
+  (:require [clojure.set :as set]))
 
 (defn find-module-dependencies [sym symv tally]
   (reduce-kv (fn [i k v]
