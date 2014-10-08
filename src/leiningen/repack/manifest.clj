@@ -1,45 +1,52 @@
 (ns leiningen.repack.manifest
-  (:require [leiningen.core.project :as project]
-            [leiningen.repack.manifest.classify :as classify]
-            [leiningen.repack.manifest.graph :as graph]
-            [korra.common :refer [*sep*]]
-            [korra.resolve :as resolve]))
+  (:require [clojure.java.io :as io]
+            [clojure.set :as set]
+            [leiningen.core.project :as project]
+            [leiningen.repack.graph
+             [internal :as internal]
+             [external :as external]]
+            [leiningen.repack.analyser :as analyser]
+            [leiningen.repack.manifest [common :refer [build-filemap]] source]
+            [leiningen.repack.data.file-info :refer [map->FileInfo]]
+            [leiningen.repack.data.util :as util]))
 
-(defn create-manifest [project]
-  (let [project (project/unmerge-profiles project [:default])
-        root (first (:source-paths project))
-        [root-files branches]  (classify/split-project-files project)
-        {clojure true others false} (group-by graph/is-clojure? (:dependencies project))]
-    {:root (-> project
-               (select-keys [:group :name :version])
-               (assoc :dependencies (->> (graph/create-root-dependencies project branches)
-                                         (concat clojure)
-                                         (vec))
-                      :files (mapv (fn [f] (.replace (.getPath f) (str root *sep*) "")) root-files)))
-     :branches (let [modules (classify/classify-modules branches)
-                     pkg-lu  (graph/create-branch-lookup modules)]
-                 (->> modules
-                      (map (fn [[k {:keys [package dep-namespaces dep-classes files]}]]
-                             [k (-> project
-                                    (select-keys [:group :name :version])
-                                    (update-in [:name] #(str % "." package))
-                                    (assoc :dependencies (->> [project branches pkg-lu
-                                                               dep-namespaces dep-classes]
-                                                              (apply graph/create-branch-dependencies)
-                                                              (second)
-                                                              (concat clojure)
-                                                              (vec))
-                                           :files (mapv (fn [f] (.replace f (str root *sep*) ""))
-                                                        files)
-                                           :coordinate (graph/create-branch-coordinate project package)))]))
-                      (into {})))}))
+(defn clj-version [project]
+  (->> (:dependencies project)
+       (filter #(= (first %) 'org.clojure/clojure))
+       (first)
+       (second)))
 
+(defn create-root-entry [project branches]
+  (-> (select-keys project [:name :group :version :dependencies])
+      (update-in [:dependencies] #(apply conj (vec %) (map :coordinate branches)))
+      (assoc :files [])))
 
+(defn create-branch-entry [project filemap i-deps ex-deps pkg]
+  (let [{:keys [group version] base :name} project
+        name   (str group "/" base "." pkg)]
+    {:coordinate [(symbol name) version]
+     :files (mapv :path (get filemap pkg))
+     :dependencies (->> (get i-deps pkg)
+                        (map (fn [k]
+                               [(symbol (str group "/" base "." k)) version]))
+                        (concat [['org.clojure/clojure (clj-version project)]]
+                                (get ex-deps pkg))
+                        vec)
+     :version version
+     :name name
+     :group group}))
 
-(comment
-  (create-manifest (project/read "example/hara/project.clj"))
-
-  (classify/split-project-files (project/read "example/hara/project.clj"))
-  (-> (project/read "example/hara/project.clj")
-      (project/unmerge-profiles [:default])
-      (classify/split-project-files)))
+(defn create [project]
+  (let [cfgs (:repack project)
+        cfgs (if (vector? cfgs) cfgs [cfgs])
+        filemap   (->> cfgs
+                       (map #(build-filemap (:root project) %))
+                       (apply merge-with set/union))
+        i-deps (merge-with set/union
+                           (internal/resource-dependencies cfgs)
+                           (internal/find-all-module-dependencies filemap))
+        ex-deps  (filter identity (external/find-all-external-imports filemap i-deps project))
+        ks       (keys filemap)
+        branches (mapv #(create-branch-entry project filemap i-deps ex-deps %) ks)]
+    {:root (create-root-entry project branches)
+     :branches (zipmap ks branches)}))

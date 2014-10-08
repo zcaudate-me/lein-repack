@@ -1,15 +1,18 @@
 (ns leiningen.repack.deploy
-  (:require [leiningen.repack.util :refer :all]
-            [leiningen.repack.split :refer [split]]
+  (:require [leiningen.core.project :as project]
+            [leiningen.repack.data.sort :as sort]
+            [leiningen.repack.data.io :as io]
+            [leiningen.repack.split :as split]
+            [leiningen.repack.manifest :as manifest]
             [leiningen.repack.install :as install]
-            [leiningen.core.project :as project]
             [leiningen.deploy :as deploy]))
 
 (defn deploy [project manifest repo]
-  (split project manifest)
-  (let [subprojects (-> manifest topsort-branch-deps flatten distinct)]
+  (split/split project)
+  (let [manifest (manifest/create project)
+        subprojects (-> manifest sort/topsort-branch-deps flatten distinct)]
     (doseq [entry subprojects]
-      (let [sproject (project/read (interim-path project "branches" (:id entry) "project.clj"))]
+      (let [sproject (project/read (io/interim-path project "branches" (:id entry) "project.clj"))]
         (deploy/deploy sproject repo)))
-    (let [rproject (project/read (interim-path project "root" "project.clj"))]
+    (let [rproject (project/read (io/interim-path project "root" "project.clj"))]
       (deploy/deploy rproject repo))))

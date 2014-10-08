@@ -1,10 +1,12 @@
 (ns leiningen.repack.push
-  (:require [clojure.java.io :as io]
-            [leiningen.repack.install :refer [install]]
-            [leiningen.repack.util :refer :all]
-            [leiningen.core.project :as project]
-            [leiningen.jar :refer [jar get-jar-filename]]
-            [leiningen.pom :refer [pom]]
+  (:require [leiningen.core.project :as project]
+            [clojure.java.io :as io]
+            [leiningen.repack.install :as install]
+            [leiningen.repack.manifest :as manifest]
+            [leiningen.repack.data.sort :as sort]
+            [leiningen.repack.data.io :refer [interim-path]]
+            [leiningen.jar :as jar]
+            [leiningen.pom :as pom]
             [leiningen.push :as push])
   (:import [com.jcraft.jsch JSch JSchException Logger]))
 
@@ -15,11 +17,11 @@
    (JSch/setLogger (proxy [Logger] []
                      (isEnabled [level] true)
                      (log [level message] (println level message)))))
- (let [jarfile (get-jar-filename project)
+ (let [jarfile (jar/get-jar-filename project)
        targetpath (.getParentFile (io/file jarfile))
        pomfile (io/file (:root project) "pom.xml")]
-   (pom project)
-   (jar project)
+   (pom/pom project)
+   (jar/jar project)
    (try
     (push/scp-send repo pomfile jarfile)
     (catch JSchException e
@@ -33,9 +35,10 @@
           "lein pom\n"
           "scp " pomfile " " jarfile " clojars@clojars.org:" )))))))
 
-(defn push [project manifest]
-    (install project manifest)
-    (let [subprojects (-> manifest topsort-branch-deps flatten distinct)]
+(defn push [project]
+  (install/install project)
+  (let [manifest (manifest/create project)
+        subprojects (-> manifest sort/topsort-branch-deps flatten distinct)]
       (doseq [entry subprojects]
         (let [sproject (project/read (interim-path project "branches" (:id entry) "project.clj"))]
           (push-jar sproject)))
