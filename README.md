@@ -6,8 +6,8 @@ Repack your project for deployment and distribution
 
 #### 0.2.3
 
- - Overhauled analyser to make it more extensible
- - Support for java, clojurescript and resources
+ - Overhauled analyser to make it more extensible (.cljx anybody?)
+ - Support for java, clojurescript and resource files
  - Breaking changes to :repack project map. See [example](https://github.com/zcaudate/lein-repack/tree/master/example/repack.advance/project.clj) for typical use cases. 
  - `push` has [stopped working](http://grokbase.com/t/gg/clojure/149rrwe3nw/psa-clojars-scp-disabled-until-further-notice) so `lein repack deploy` has to be used instead.
  
