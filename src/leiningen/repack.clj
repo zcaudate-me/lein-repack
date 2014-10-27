@@ -4,7 +4,8 @@
             [leiningen.repack.split :as split]
             [leiningen.repack.install :as install]
             [leiningen.repack.deploy :as deploy]
-            [leiningen.repack.push :as push]))
+            [leiningen.repack.push :as push]
+            [clojure.pprint :as pprint]))
 
 (defn help [project & args]
   (println "\nSub-tasks for repackage are available:\n")
@@ -17,7 +18,7 @@
   (println "push               Deployment the old-school way"))
 
 (defn manifest [project]
-  (clojure.pprint/pprint
+  (pprint/pprint
    (manifest/create project)))
 
 (defn split [project]

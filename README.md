@@ -4,6 +4,10 @@ Repack your project for deployment and distribution
 
 ### Whats New
 
+#### 0.2.4
+
+- Fixed bug where pprint did not import
+
 #### 0.2.3
 
  - Overhauled analyser to make it more extensible (.cljx anybody?)
@@ -40,7 +44,7 @@ Add `lein-repack` to your project.clj file that you wish to repack:
   (defproject lama ....
   
     :profiles {:dev {:plugins [...
-                               [lein-repack "0.2.3"] ;; Current latest version
+                               [lein-repack "0.2.4"] ;; Current latest version
                                ...]}}
                                
     ;; defaults, can be left out
