@@ -6,10 +6,15 @@
 
 (comment
 
-  (manifest
+  (manifest/create
    (-> (project/read "example/repack.advance/project.clj")
        (project/unmerge-profiles [:default])))
 
+  (manifest/create
+   (-> (project/read "/Users/Chris/dev/buffer/system/project.clj")
+       (project/unmerge-profiles [:default])))
+
+  
   (split
    (-> (project/read "/Users/Chris/dev/chit/hara/project.clj")
        (project/unmerge-profiles [:default])))

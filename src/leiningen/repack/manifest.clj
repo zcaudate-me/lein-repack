@@ -31,7 +31,7 @@
                         (map (fn [k]
                                [(symbol (str group "/" base "." k)) version]))
                         (concat [['org.clojure/clojure (clj-version project)]]
-                                (get ex-deps pkg))
+                                (filter identity (get ex-deps pkg)))
                         vec)
      :version version
      :name name
@@ -46,10 +46,8 @@
         i-deps (merge-with set/union
                            (internal/resource-dependencies cfgs)
                            (internal/find-all-module-dependencies filemap))
-        ex-deps  (filter identity (external/find-all-external-imports filemap i-deps project))
+        ex-deps  (external/find-all-external-imports filemap i-deps project)
         ks       (keys filemap)
         branches (mapv #(create-branch-entry project filemap i-deps ex-deps %) ks)]
-    ;;(println i-deps)
-    ;;(println (get (zipmap ks branches) "web"))
     {:root (create-root-entry project branches)
      :branches (zipmap ks branches)}))
