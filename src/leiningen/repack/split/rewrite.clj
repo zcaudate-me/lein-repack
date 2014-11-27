@@ -56,7 +56,7 @@
       (replace-project-value :dependencies
                              (-> manifest :branches (get name) :dependencies))
       (remove-project-key :profiles)
-      (remove-project-key :source-paths)
+      ;;(remove-project-key :source-paths) ;; Leave source-paths in the project.clj so classpath roots are preserved properly.
       (remove-project-key :repack)
       z/print-root
       with-out-str))
