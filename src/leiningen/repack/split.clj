@@ -53,12 +53,11 @@
                   flatten
                   distinct
                   (map :id)))))
-                  
 (comment
   (require '[leiningen.repack.manifest :as manifest])
   (def project (project/read "example/hara/project.clj"))
-  (def manifest (manifest/create-manifest project))
+  (def manifest (manifest/create project))
   (clean project)
   (create-scaffold project manifest)
-  (create-source-files project manifest)
+  (create-files project manifest)
   (create-project-clj-files project manifest))
