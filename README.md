@@ -4,7 +4,7 @@ Repack your project for deployment and distribution
 
 ### Whats New
 
-#### 0.2.6
+#### 0.2.7
 
 - Fix for project with no group name
 - Fix for sane defaults when repack option has not been specified
