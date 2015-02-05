@@ -9,4 +9,8 @@
 
 (let [project (-> (project/read "example/repack.simple/project.clj")
                   (project/unmerge-profiles [:default]))]
-   (split project))
+  (split project))
+
+(comment (let [project (-> (project/read "../hara/project.clj")
+                           (project/unmerge-profiles [:default]))]
+           (split project)))

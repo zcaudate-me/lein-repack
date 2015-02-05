@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [korra.common :refer [*sep*]]
+            [leiningen.pom :as pom]
             [leiningen.repack.split.rewrite :as rewrite]
             [leiningen.repack.manifest :as manifest]
             [leiningen.repack.data.sort :as sort]
@@ -35,12 +36,19 @@
                   (io/file (:root project))
                   (io/file interim "branches" branch)))))
 
+(defn create-scm-info [project]
+  (->> (#'pom/make-git-scm (#'pom/resolve-git-dir project))
+       rest
+       (into {})))
+
 (defn create-project-clj-files [project manifest]
-  (spit (interim-path project "root" "project.clj")
-        (rewrite/root-project-string project manifest))
-  (doseq [branch (-> manifest :branches keys)]
-    (spit (interim-path project "branches" branch "project.clj")
-          (rewrite/branch-project-string project manifest branch))))
+  (let [scm (or (:scm project) (create-scm-info project))
+        project (assoc project :scm scm)]
+    (spit (interim-path project "root" "project.clj")
+          (rewrite/root-project-string project manifest))
+    (doseq [branch (-> manifest :branches keys)]
+      (spit (interim-path project "branches" branch "project.clj")
+            (rewrite/branch-project-string project manifest branch)))))
 
 (defn split [project]
   (let [manifest (manifest/create project)]
@@ -53,7 +61,7 @@
                   flatten
                   distinct
                   (map :id)))))
-                  
+
 (comment
   (require '[leiningen.repack.manifest :as manifest])
   (def project (project/read "example/hara/project.clj"))

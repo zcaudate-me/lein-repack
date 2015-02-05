@@ -38,10 +38,28 @@
         (z/find-value z/next 'defproject))
     zipper))
 
+(defn add-project-key [zipper key value]
+  (if-let [pos (-> zipper
+                   (z/find-value key))]
+    (-> pos
+        (z/remove*)
+        (z/right)
+        (z/remove*)
+        (z/up)
+        (z/find-value z/next 'defproject))
+    (-> zipper
+        (z/find-value z/next 'defproject)
+        (z/rightmost)
+        (z/insert-right value)
+        (z/insert-right key)
+        (z/up)
+        (z/find-value z/next 'defproject))))
+
 (defn root-project-string [project manifest]
   (-> (project-zip project)
       (update-project-value :dependencies
-                            #(->> manifest :root :dependencies #_(concat %) (vec)))
+                            (fn [x] (->> manifest :root :dependencies (vec))))
+      (add-project-key :scm (:scm project))
       (remove-project-key :profiles)
       (remove-project-key :source-paths)
       (remove-project-key :repack)
@@ -53,6 +71,7 @@
       (update-project-value 'defproject
                             (fn [x] (symbol (str (:group project) "/"
                                                 (:name project) "." name))))
+      (add-project-key :scm (:scm project))
       (update-project-value :description
                             (fn [x] (or (-> manifest :branches (get name) :description) x)))
       (replace-project-value :dependencies

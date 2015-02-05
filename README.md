@@ -4,6 +4,12 @@ Repack your project for deployment and distribution
 
 ### Whats New
 
+#### 0.2.6
+
+- Fix for project with no group name
+- Fix for sane defaults when repack option has not been specified
+- Fix for SCM repo
+
 #### 0.2.4
 
 - Fixed bug where pprint did not import
@@ -44,12 +50,11 @@ Add `lein-repack` to your project.clj file that you wish to repack:
   (defproject lama ....
   
     :profiles {:dev {:plugins [...
-                               [lein-repack "0.2.4"] ;; Current latest version
+                               [lein-repack "0.2.6"] ;; Current latest version
                                ...]}}
                                
     ;; specify source folders for repack, defaults can be omitted
-    :repack [{:type :clojure
-              :path "src"
+    :repack [{:path "src"
               :levels 1}])
 ```
 
@@ -93,9 +98,64 @@ Once installed in your project.clj (or globally via profile.clj)
     deploy             Deploys all the repackaged jars
     push               Deployment the old-school way
 
+
+### configuration
+It's quite a difficult task to attempt to split a big project into smaller pieces. There are lots of things to consider, especially with mixed clj/cljs projects - most of all, where are all the different files stored and where are they going to go? Also, there is a problem with dependencies. For example, a file in your source directory may refer to an image file in your resource directory. When the project is split, you'd typically want just the image file to be relocated and not the entire resource directory.
+
+`lein-repack` tries to be as accomodating as possible to these endless possibilities. Of course, you have to be smart about doing so but the tool does offer enough options to split up more intricate projects into bite-sized, more easily distributable pieces.
+
+To be repacked, a project requires either a map or a vector of maps defining the code to be distributed under the `:repack` key in it's `project.clj`. We can look at options for [repack.advance](https://github.com/zcaudate/lein-repack/tree/master/example/repack.advance/project.clj) and how one project will get sliced up into multiple projects. The entire `:repack` options are shown below, with labels (#1 to #4) showing where relevent files are kept. In this case, we have a mixed source project with `.clj`, `.cljs`, `.java` and resources all split into their various directories:
+
+```clojure
+:repack [{:path "src/clj"         ;; # 1. Clojure Files
+          :levels 2
+          :standalone #{"web"}}
+         {:path "src/cljs"        ;; # 2. Clojurescript Files
+          :levels 2
+          :standalone #{"web"}}
+         {:subpackage "jvm"       ;; # 3. Java Files
+          :path "java/im/chit/repack"
+          :distribute {"common" #{"common"}
+                       "web"    #{"web"}}}
+         {:subpackage "resources" ;; # 4. Resource Files
+          :path "resources"
+          :distribute {"common" #{"common"}
+                       "web"    #{"web"}}
+          :dependents #{"core"}}]
+```
+
+We look at the first entry (#1) and see that it has keys `:path`, `:levels` and `:standalone`. 
+
+  - `:path` points to `src/clj`, meaning that repack will look inside `src/clj` to find all the relevant files that will need to be distributed. 
+	- `:levels` has the value 2, meaning that it will look under 2 levels of folders. Usually, `1` is enough but if the project is large enough, then it is warranted.
+	
+	- `:standalone` indicates to repack that the `web` folder should not be split but remain as a single module.
+	
+	- given the directory structure under `src/clj` along with the options provided the following modules will be generated:
+	  - common
+		- core
+		- util.data
+		- util.array (note that although this has another directory, because `:levels` has been limited to 2 it will not be split any further)
+		- web (note that although this is a directory, because we have given the `:standalone` option, it remains a single module)
+
+The second entry (#2) is the same as the first, except that the `:path` key points to `src/cljs`.
+  
+  - only the `web` module will be generated. However, because this module already exists (due to its creation in #1), all the files from `src/cljs` will just be added to the `web` module.
+
+The third entry (#3) is a little different to the first two because we are defining a subpackage as well as rules for how subfolders have to be distributed across modules. In this case, we have a folder containing `*.java` files. 
+
+  - individual folders within the main `java/im/chit/repack` folder may need to be allocated to seperate modules. This is done using the `:distribute` key which means that
+	  - the contents of the `java/im/chit/repack/common` folder will go into the `common` module
+	  - the contents of the `java/im/chit/repack/web` folder will go into the `web` module
+		- the `native` folder will go into the `jvm` module because it was not listed under the :distribute keyword
+
+The forth entry (#4) is the resource directory and it is very similar to the java source code directory. However, some submodules may depend on resources and so this must be explicitly stated.
+
+   - the `:dependents` key lists all the submodules that depend on resources. They will have a dependency to the resources submodule once it has been repacked.
+	 
 ### manifest
 
-An [example](https://github.com/zcaudate/lein-repack/tree/master/example/repack.advance/project.clj) project showing advanced features of `lein-repack` has been added, demonstrating how different types of files (`java`, `clj`, `cljs` as well as resource files) can be developed together and then packaged seperately depending on project specification:
+So having attempted to explain what was happening with the configuration options, it's probably much easier to just run the thing. The manifest will show what files in the project will go where depending on how the options play out. The advanced features of `lein-repack` will be demonstrated to show how different types of files (`java`, `clj`, `cljs` as well as resource files) can be developed together and then packaged seperately depending on project specification:
 
     $ cd example/repack.advanced
     $ lein repack manifest
