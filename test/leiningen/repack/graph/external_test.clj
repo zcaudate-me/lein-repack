@@ -46,4 +46,4 @@
 ^{:refer leiningen.repack.graph.external/find-all-external-imports :added "0.1.5"}
 (fact  "finds external imports for the filemap"
   (find-all-external-imports *filemap* *i-deps* *project*)
-  => {"web" #{}, "util.data" #{}, "util.array" #{}, "core" '#{[im.chit/korra "0.1.2"]}, "common" #{}, "resources" #{}})
+  => {"web" #{}, "util.data" #{}, "util.array" #{}, "jvm" #{} "core" '#{[im.chit/korra "0.1.2"]}, "common" #{}, "resources" #{}})

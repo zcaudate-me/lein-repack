@@ -38,6 +38,7 @@
                       (->> (find-external-imports filemap i-deps k)
                            (map #(resolve-with-ns % (:dependencies project) project))
                            (filter (comp not is-clojure?))
-                           (set))))
+                           (set)
+                           (#(disj % nil)))))
              {}
              filemap))

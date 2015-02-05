@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [im.chit/korra "0.1.2"]]
-  :profiles {:dev {:plugins [[lein-repack "0.2.3"]]}}
+  :profiles {:dev {:plugins [[lein-repack "0.2.5"]]}}
   :repack [{:type :clojure
             :levels 2
             :path "src/clj"
