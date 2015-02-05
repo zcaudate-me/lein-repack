@@ -50,7 +50,9 @@
 
 (defn branch-project-string [project manifest name]
   (-> (project-zip project)
-      (update-project-value 'defproject (fn [x] (symbol (str x "." name))))
+      (update-project-value 'defproject
+                            (fn [x] (symbol (str (:group project) "/"
+                                                (:name project) "." name))))
       (update-project-value :description
                             (fn [x] (or (-> manifest :branches (get name) :description) x)))
       (replace-project-value :dependencies
