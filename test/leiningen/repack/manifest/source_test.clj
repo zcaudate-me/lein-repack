@@ -7,7 +7,7 @@
 ^{:refer leiningen.repack.manifest.source/child-dirs :added "0.1.5"}
 (fact "lists all the child directories for a particular folder"
   (child-dirs (io/file "example"))
-  => ["repack.advance"])
+  => ["repack.advance" "repack.simple"])
 
 ^{:refer leiningen.repack.manifest.source/split-path :added "0.1.5"}
 (fact "splits the file into its path components"

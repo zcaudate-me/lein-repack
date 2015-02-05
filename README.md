@@ -8,7 +8,8 @@ Repack your project for deployment and distribution
 
 - Fix for project with no group name
 - Fix for sane defaults when repack option has not been specified
-- Fix for SCM repo
+- Fix for automatically figuring out :scm repo
+- Better documentation for configuration options
 
 #### 0.2.4
 
