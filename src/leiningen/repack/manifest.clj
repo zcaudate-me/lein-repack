@@ -11,6 +11,11 @@
             [leiningen.repack.data.file-info :refer [map->FileInfo]]
             [leiningen.repack.data.util :as util]))
 
+(def ^:dynamic *default-config*
+  [{:type :clojure
+    :path "src"
+    :levels 1}])
+
 (defn clj-version [project]
   (->> (:dependencies project)
        (filter #(= (first %) 'org.clojure/clojure))
@@ -38,7 +43,7 @@
      :group group}))
 
 (defn create [project]
-  (let [cfgs (:repack project)
+  (let [cfgs (or (:repack project) *default-config*)
         cfgs (if (vector? cfgs) cfgs [cfgs])
         filemap   (->> cfgs
                        (map #(build-filemap (:root project) %))

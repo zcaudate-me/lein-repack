@@ -47,7 +47,7 @@ Add `lein-repack` to your project.clj file that you wish to repack:
                                [lein-repack "0.2.4"] ;; Current latest version
                                ...]}}
                                
-    ;; defaults, can be left out
+    ;; specify source folders for repack, defaults can be omitted
     :repack [{:type :clojure
               :path "src"
               :levels 1}])
