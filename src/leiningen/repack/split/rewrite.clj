@@ -61,7 +61,6 @@
                             (fn [x] (->> manifest :root :dependencies (vec))))
       (add-project-key :scm (:scm project))
       (remove-project-key :profiles)
-      (remove-project-key :source-paths)
       (remove-project-key :repack)
       z/print-root
       with-out-str))
@@ -77,7 +76,6 @@
       (replace-project-value :dependencies
                              (-> manifest :branches (get name) :dependencies))
       (remove-project-key :profiles)
-      (remove-project-key :source-paths)
       (remove-project-key :repack)
       z/print-root
       with-out-str))

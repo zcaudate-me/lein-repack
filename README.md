@@ -4,9 +4,14 @@ Repack your project for deployment and distribution
 
 ### Whats New
 
+#### 0.2.9
+
+- Fix for non-removal of :source-map key
+
 #### 0.2.8
 
-- Using im.chit/korra "0.1.3"
+- Using im.chit/vinyasa "0.3.2" instead of korra
+- Fix for hypenated namespaces
 
 #### 0.2.7
 
@@ -111,7 +116,7 @@ It's quite a difficult task to attempt to split a big project into smaller piece
 
 To be repacked, a project requires either a map or a vector of maps defining the code to be distributed under the `:repack` key in it's `project.clj`. We can look at options for [repack.advance](https://github.com/zcaudate/lein-repack/tree/master/example/repack.advance/project.clj) and how one project will get sliced up into multiple projects. The entire `:repack` options are shown below, with labels (#1 to #4) showing where relevent files are kept. In this case, we have a mixed source project with `.clj`, `.cljs`, `.java` and resources all split into their various directories. The final result is shown in the diagram below:
 
-![Repack Results](https://www.github.com/zcaudate/lein-repack/master/tree/diagram/repack-diagram.png/raw)
+![Repack Results](https://github.com/zcaudate/lein-repack/raw/master/diagram/repack-diagram.png)
 
 The configuration options that achieved such a result are shown below:
 
