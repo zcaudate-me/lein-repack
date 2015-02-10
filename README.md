@@ -4,6 +4,10 @@ Repack your project for deployment and distribution
 
 ### Whats New
 
+#### 0.2.8
+
+- Using im.chit/korra "0.1.3"
+
 #### 0.2.7
 
 - Fix for project with no group name
@@ -51,7 +55,7 @@ Add `lein-repack` to your project.clj file that you wish to repack:
   (defproject lama ....
   
     :profiles {:dev {:plugins [...
-                               [lein-repack "0.2.7"] ;; Current latest version
+                               [lein-repack "0.2.8"] ;; Current latest version
                                ...]}}
                                
     ;; specify source folders for repack, defaults can be omitted
@@ -105,7 +109,11 @@ It's quite a difficult task to attempt to split a big project into smaller piece
 
 `lein-repack` tries to be as accomodating as possible to these endless possibilities. Of course, you have to be smart about doing so but the tool does offer enough options to split up more intricate projects into bite-sized, more easily distributable pieces.
 
-To be repacked, a project requires either a map or a vector of maps defining the code to be distributed under the `:repack` key in it's `project.clj`. We can look at options for [repack.advance](https://github.com/zcaudate/lein-repack/tree/master/example/repack.advance/project.clj) and how one project will get sliced up into multiple projects. The entire `:repack` options are shown below, with labels (#1 to #4) showing where relevent files are kept. In this case, we have a mixed source project with `.clj`, `.cljs`, `.java` and resources all split into their various directories:
+To be repacked, a project requires either a map or a vector of maps defining the code to be distributed under the `:repack` key in it's `project.clj`. We can look at options for [repack.advance](https://github.com/zcaudate/lein-repack/tree/master/example/repack.advance/project.clj) and how one project will get sliced up into multiple projects. The entire `:repack` options are shown below, with labels (#1 to #4) showing where relevent files are kept. In this case, we have a mixed source project with `.clj`, `.cljs`, `.java` and resources all split into their various directories. The final result is shown in the diagram below:
+
+![Repack Results](https://www.github.com/zcaudate/lein-repack/master/tree/diagram/repack-diagram.png/raw)
+
+The configuration options that achieved such a result are shown below:
 
 ```clojure
 :repack [{:path "src/clj"         ;; # 1. Clojure Files
@@ -129,9 +137,7 @@ We look at the first entry (#1) and see that it has keys `:path`, `:levels` and 
 
   - `:path` points to `src/clj`, meaning that repack will look inside `src/clj` to find all the relevant files that will need to be distributed. 
 	- `:levels` has the value 2, meaning that it will look under 2 levels of folders. Usually, `1` is enough but if the project is large enough, then it is warranted.
-	
 	- `:standalone` indicates to repack that the `web` folder should not be split but remain as a single module.
-	
 	- given the directory structure under `src/clj` along with the options provided the following modules will be generated:
 	  - common
 		- core
@@ -153,8 +159,9 @@ The third entry (#3) is a little different to the first two because we are defin
 The forth entry (#4) is the resource directory and it is very similar to the java source code directory. However, some submodules may depend on resources and so this must be explicitly stated.
 
    - the `:dependents` key lists all the submodules that depend on resources. They will have a dependency to the resources submodule once it has been repacked.
-	 
+
 ### manifest
+
 
 So having attempted to explain what was happening with the configuration options, it's probably much easier to just run the thing. The manifest will show what files in the project will go where depending on how the options play out. The advanced features of `lein-repack` will be demonstrated to show how different types of files (`java`, `clj`, `cljs` as well as resource files) can be developed together and then packaged seperately depending on project specification:
 
@@ -268,6 +275,6 @@ They work the same way as the built in leiningen commands but also generates sub
 
 ## License
 
-Copyright © 2014 Chris Zheng
+Copyright © 2015 Chris Zheng
 
 Distributed under the MIT License

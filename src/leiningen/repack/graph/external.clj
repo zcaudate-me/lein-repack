@@ -1,15 +1,18 @@
 (ns leiningen.repack.graph.external
-  (:require [korra.common :refer [*sep*]]
-            [korra.resolve :as resolve]
+  (:require [vinyasa.maven.file :refer [*sep*]]
+            [vinyasa.maven :as maven]
             [clojure.set :as set]
             [clojure.string :as string]))
 
 (defn to-jar-entry [[type sym]]
-  (str (string/join "/" (string/split (str sym) #"\.")) "." (name type)))
+  (let [s (-> (str sym)
+              (.replaceAll "\\." "/")
+              (.replaceAll "-" "_"))]
+    (str s "." (name type))))
 
 (defn resolve-with-ns [x dependencies project]
   (->> dependencies
-       (keep #(if (resolve/resolve-with-deps (to-jar-entry x)
+       (keep #(if (maven/resolve-with-deps (to-jar-entry x)
                                              % :repositories
                                              ;; korra assumes
                                              ;; repositories is a

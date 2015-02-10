@@ -3,7 +3,7 @@
             [leiningen.pom :as pom]
             [clojure.java.io :as io]
             [clojure.string :as string]
-            [korra.common :refer :all]))
+            [vinyasa.maven.file :refer :all]))
 
 (defn name->path [name]
   (-> (str name)

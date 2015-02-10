@@ -1,7 +1,7 @@
 (ns leiningen.repack.util
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
-            [korra.common :refer [*sep*]]))
+            [vinyasa.maven.file :refer [*sep*]]))
 
 (defn delete-file-recursively
   "Delete file f. If it's a directory, recursively delete all its contents.

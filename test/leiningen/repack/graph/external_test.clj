@@ -24,26 +24,29 @@
 ^{:refer leiningen.repack.graph.external/to-jar-entry :added "0.1.5"}
 (fact "constructs a jar entry"
 
-  (to-jar-entry '[:clj korra.common])
-  => "korra/common.clj"
+  (to-jar-entry '[:clj vinyasa.maven.file])
+  => "vinyasa/maven/file.clj"
 
-  (to-jar-entry '[:cljs korra.common])
-  => "korra/common.cljs")
+  (to-jar-entry '[:cljs vinyasa.maven.file])
+  => "vinyasa/maven/file.cljs"
+
+  (to-jar-entry '[:clj version-clj.core])
+  => "version_clj/core.clj")
 
 
 ^{:refer leiningen.repack.graph.external/resolve-with-ns :added "0.1.5"}
 (fact "finds the maven coordinate for a given namespace"
-  (resolve-with-ns '[:clj korra.common]
+  (resolve-with-ns '[:clj vinyasa.maven.file]
                    (:dependencies *project*)
                    *project*)
-  => '[im.chit/korra "0.1.2"])
+  => '[im.chit/vinyasa.maven "0.3.1"])
 
 ^{:refer leiningen.repack.graph.external/find-external-imports :added "0.1.5"}
 (fact "finds external imports for a given submodule"
   (find-external-imports *filemap* *i-deps* "core")
-  => '#{[:clj korra.common]})
+  => '#{[:clj vinyasa.maven.file]})
 
 ^{:refer leiningen.repack.graph.external/find-all-external-imports :added "0.1.5"}
 (fact  "finds external imports for the filemap"
   (find-all-external-imports *filemap* *i-deps* *project*)
-  => {"web" #{}, "util.data" #{}, "util.array" #{}, "jvm" #{} "core" '#{[im.chit/korra "0.1.2"]}, "common" #{}, "resources" #{}})
+  => {"web" #{}, "util.data" #{}, "util.array" #{}, "jvm" #{} "core" '#{[im.chit/vinyasa.maven "0.3.1"]}, "common" #{}, "resources" #{}})

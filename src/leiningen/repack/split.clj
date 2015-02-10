@@ -1,7 +1,7 @@
 (ns leiningen.repack.split
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
-            [korra.common :refer [*sep*]]
+            [vinyasa.maven.file :refer [*sep*]]
             [leiningen.pom :as pom]
             [leiningen.repack.split.rewrite :as rewrite]
             [leiningen.repack.manifest :as manifest]

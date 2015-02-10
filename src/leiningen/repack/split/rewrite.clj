@@ -1,6 +1,6 @@
 (ns leiningen.repack.split.rewrite
   (:require [rewrite-clj.zip :as z]
-            [korra.common :refer [*sep*]]))
+            [vinyasa.maven.file :refer [*sep*]]))
 
 (defn project-zip [project]
   (-> (z/of-file (str (:root project) *sep* "project.clj"))

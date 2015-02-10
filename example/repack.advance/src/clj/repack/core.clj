@@ -1,2 +1,2 @@
 (ns repack.core
-  (:require [korra.common :refer :all]))
+  (:require [vinyasa.maven.file :refer :all]))

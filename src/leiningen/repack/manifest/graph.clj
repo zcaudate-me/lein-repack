@@ -1,10 +1,10 @@
 (ns leiningen.repack.manifest.graph
-  (:require [korra.common :refer [*sep*]]
-            [korra.resolve :as resolve]))
+  (:require [vinyasa.maven.file :refer [*sep*]]
+            [vinyasa.maven :as maven]))
 
 (defn resolve-with-ns [x dependencies project]
   (or (->> dependencies
-           (map #(if (resolve/resolve-with-deps x % :repositories
+           (map #(if (maven/resolve-with-deps x % :repositories
                                                 ;; korra assumes
                                                 ;; repositories is a
                                                 ;; map, lein accepts a
