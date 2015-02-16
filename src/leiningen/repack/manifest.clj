@@ -46,7 +46,8 @@
   (let [cfgs (or (:repack project) *default-config*)
         cfgs (if (vector? cfgs) cfgs [cfgs])
         filemap   (->> cfgs
-                       (map #(build-filemap (:root project) %))
+                       (map #(build-filemap (:root project)
+                                            (merge (select-keys project [:jar-exclusions]) %)))
                        (apply merge-with set/union))
         i-deps (merge-with set/union
                            (internal/resource-dependencies cfgs)

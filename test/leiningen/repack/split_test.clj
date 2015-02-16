@@ -5,15 +5,20 @@
             [leiningen.repack.analyser :as analyser]
             [leiningen.core.project :as project]))
 
-(let [project (-> (project/read "example/repack.advance/project.clj")
-                  (project/unmerge-profiles [:default]))]
-  (split project))
-
-(let [project (-> (project/read "example/repack.simple/project.clj")
-                  (project/unmerge-profiles [:default]))]
-  (split project))
-
 (comment
+  (let [project (-> (project/read "example/repack.simple/project.clj")
+                  (project/unmerge-profiles [:default]))]
+    (println (:jar-exclusions project))
+    (manifest/create project))
+
+  (let [project (-> (project/read "example/repack.advance/project.clj")
+                  (project/unmerge-profiles [:default]))]
+    (split project))
+
+  (let [project (-> (project/read "example/repack.simple/project.clj")
+                  (project/unmerge-profiles [:default]))]
+    (split project))
+
   (let [project (-> (project/read "../hara/project.clj")
                     (project/unmerge-profiles [:default]))]
     (split project))

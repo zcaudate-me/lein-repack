@@ -34,9 +34,11 @@
         res-folder (io/file project-dir res-path)
         subpackage (:subpackage cfg)
         distro     (->> (file-seq res-folder)
-                        (filter #(not (.isDirectory %)) )
+                        (filter #(not (.isDirectory %)))
+                        (filter (fn [f] (not (some #(re-find % (.getPath f)) 
+												                           (:jar-exclusions cfg)))))
                         (map #(util/relative-path res-folder %))
                         (util/group-by-distribution (:distribute cfg)))]
     (create-filemap distro {:root   project-dir
-                             :folder res-path
-                             :pnil   subpackage})))
+                            :folder res-path
+                            :pnil   subpackage})))

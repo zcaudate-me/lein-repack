@@ -4,6 +4,10 @@ Repack your project for deployment and distribution
 
 ### Whats New
 
+#### 0.2.10
+
+- Added :exclusion fields
+
 #### 0.2.9
 
 - Fix for non-removal of :source-map key
