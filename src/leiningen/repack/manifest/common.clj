@@ -10,7 +10,8 @@
   ([files] (create-filemap files {:pnil "default"}))
   ([files opts]
      (reduce-kv (fn [m k v]
-                  (let [grp (or k (:pnil opts))
+                  (let [grp (or k
+                                (:pnil opts))
                         root-dir (or (:root opts) "")]
                     (->> v
                          (map (fn [ele]
@@ -32,13 +33,13 @@
   [project-dir cfg]
   (let [res-path   (:path cfg)
         res-folder (io/file project-dir res-path)
-        subpackage (:subpackage cfg)
+        subpackage (:subpackage cfg) 
         distro     (->> (file-seq res-folder)
                         (filter #(not (.isDirectory %)))
                         (filter (fn [f] (not (some #(re-find % (.getPath f)) 
-												                           (:jar-exclusions cfg)))))
+                                                   (:jar-exclusions cfg)))))
                         (map #(util/relative-path res-folder %))
                         (util/group-by-distribution (:distribute cfg)))]
-    (create-filemap distro {:root   project-dir
+    (create-filemap distro {:root   project-dir 
                             :folder res-path
                             :pnil   subpackage})))
