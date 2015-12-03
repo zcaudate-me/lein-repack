@@ -20,12 +20,14 @@
 
         :else [u v]))
 
+(def path-pattern "Raw backslashes aren't valid regular expressions (Windows file separator). Quote ensures correct quoting." 
+  (re-pattern (java.util.regex.Pattern/quote (System/getProperty "file.separator"))))
+  
 (defn path-vector [path]
-  (string/split (.getAbsolutePath (io/file path))
-                (re-pattern (System/getProperty "file.separator"))))
+  (string/split (.getAbsolutePath (io/file path)) path-pattern))
 
 (defn relative-path-vector [path]
-  (string/split path (re-pattern (System/getProperty "file.separator"))))
+  (string/split path path-pattern)) 
 
 (defn relative-path [root other]
   (let [[base rel] (drop-while-matching (interpret-dots (path-vector root))
