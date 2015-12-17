@@ -68,7 +68,8 @@ Add `lein-repack` to your project.clj file that you wish to repack:
                                ...]}}
                                
     ;; specify source folders for repack, defaults can be omitted
-    :repack [{:path "src"
+    :repack [{:type :clojure
+              :path "src"
               :levels 1}])
 ```
 
@@ -125,10 +126,12 @@ To be repacked, a project requires either a map or a vector of maps defining the
 The configuration options that achieved such a result are shown below:
 
 ```clojure
-:repack [{:path "src/clj"         ;; # 1. Clojure Files
+:repack [{:type :clojure
+          :path "src/clj"         ;; # 1. Clojure Files
           :levels 2
           :standalone #{"web"}}
-         {:path "src/cljs"        ;; # 2. Clojurescript Files
+         {:type :clojure
+          :path "src/cljs"        ;; # 2. Clojurescript Files
           :levels 2
           :standalone #{"web"}}
          {:subpackage "jvm"       ;; # 3. Java Files
